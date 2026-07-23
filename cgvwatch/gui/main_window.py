@@ -1,6 +1,7 @@
 """메인 윈도우: 감시 목록 관리 + 워커 구동."""
 from __future__ import annotations
 
+from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout,
     QVBoxLayout, QWidget, QMessageBox, QHeaderView,
@@ -25,6 +26,8 @@ class MainWindow(QMainWindow):
         self._store = store
         self._client = client
         self._settings, self._watches = store.load()
+
+        self._build_menu_bar()
 
         self.table = QTableWidget(0, len(HEADERS))
         self.table.setHorizontalHeaderLabels(HEADERS)
@@ -53,6 +56,20 @@ class MainWindow(QMainWindow):
 
         self._refresh_table()
         self._start_worker()
+
+    # --- 메뉴 바 ---
+    def _build_menu_bar(self) -> None:
+        menubar = self.menuBar()
+        settings_menu = menubar.addMenu("설정")
+
+        open_settings = QAction("메일 설정 열기...", self)
+        open_settings.triggered.connect(self.on_settings)
+        settings_menu.addAction(open_settings)
+
+        settings_menu.addSeparator()
+        quit_action = QAction("종료", self)
+        quit_action.triggered.connect(self.close)
+        settings_menu.addAction(quit_action)
 
     # --- 워커 상태 접근자 ---
     def _get_state(self):

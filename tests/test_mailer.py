@@ -36,3 +36,34 @@ def test_send_open_mail_raises_without_password(monkeypatch):
     monkeypatch.setattr(mailer, "get_app_password", lambda user: None)
     with pytest.raises(RuntimeError):
         mailer.send_open_mail(_watch(), Settings(gmail_user="me@gmail.com"), smtp_factory=MagicMock())
+
+
+def test_send_test_mail_uses_smtp_with_typed_credentials():
+    smtp = MagicMock()
+    smtp_ctx = MagicMock()
+    smtp_ctx.__enter__.return_value = smtp
+    factory = MagicMock(return_value=smtp_ctx)
+
+    mailer.send_test_mail("me@gmail.com", "typed-pw", "you@gmail.com", smtp_factory=factory)
+
+    smtp.login.assert_called_once_with("me@gmail.com", "typed-pw")
+    sent = smtp.send_message.call_args[0][0]
+    assert sent["To"] == "you@gmail.com"
+    assert "테스트" in sent["Subject"]
+
+
+def test_send_test_mail_falls_back_to_sender_as_recipient():
+    smtp = MagicMock()
+    smtp_ctx = MagicMock()
+    smtp_ctx.__enter__.return_value = smtp
+    factory = MagicMock(return_value=smtp_ctx)
+
+    mailer.send_test_mail("me@gmail.com", "pw", "", smtp_factory=factory)
+
+    sent = smtp.send_message.call_args[0][0]
+    assert sent["To"] == "me@gmail.com"
+
+
+def test_send_test_mail_raises_without_password():
+    with pytest.raises(RuntimeError):
+        mailer.send_test_mail("me@gmail.com", "", "you@gmail.com", smtp_factory=MagicMock())
