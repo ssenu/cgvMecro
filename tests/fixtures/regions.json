@@ -1,0 +1,13 @@
+{
+  "statusCode": 0,
+  "statusMessage": "조회 되었습니다.",
+  "data": [
+    {"regnGrpNm": "서울", "siteList": [
+      {"siteNo": "0056", "siteNm": "강남"},
+      {"siteNo": "0001", "siteNm": "강변"}
+    ]},
+    {"regnGrpNm": "경기", "siteList": [
+      {"siteNo": "0112", "siteNm": "수원"}
+    ]}
+  ]
+}
