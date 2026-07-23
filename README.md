@@ -35,6 +35,21 @@ CGV의 공개 조회 API `searchSiteScnscYmdListByMov(siteNo, movNo)` 는 해당
 상영관에서 **예매 가능한 날짜 목록**을 반환합니다. 이 목록에 감시 대상 날짜가
 처음 나타나는 순간을 "예매 오픈"으로 감지해 알림을 보냅니다.
 
+## 실행파일(.exe) 빌드
+
+Python 설치 없이 더블클릭으로 실행되는 단일 `.exe`를 만들 수 있습니다.
+
+```
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements-dev.txt
+pyinstaller cgv_notifier.spec
+```
+
+- 결과물: `dist\CGV예매알리미.exe` (단일 파일, 콘솔창 없음)
+- 이 exe 하나만 복사해 배포/실행하면 됩니다. 설정·감시목록은 실행 시
+  `%USERPROFILE%\.cgv-watcher\`에, 앱 비밀번호는 Windows 자격 증명 관리자에 저장됩니다.
+
 ## 테스트
 
 ```
