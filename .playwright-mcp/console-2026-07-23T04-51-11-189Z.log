@@ -1,5 +1,0 @@
-[    1043ms] [ERROR] Access to fetch at 'https://nsso.cjone.com/findCookieRedirect.jsp?cjssoq=&returnUrl=https%3A%2F%2Fcgv.co.kr%2F' from origin 'https://cgv.co.kr' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cgv.co.kr/:0
-[    1044ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://nsso.cjone.com/findCookieRedirect.jsp?cjssoq=&returnUrl=https%3A%2F%2Fcgv.co.kr%2F:0
-[    1044ms] [INFO] 자동 로그인 쿠키 설정 중 오류: @ https://cdn.cgv.co.kr/cgvpomscontent/static/script/e08dec90/_next/static/chunks/app/layout-761807f545c2cad1.js:0
-[    1466ms] [INFO] ExtrnlAd Missing @ https://cdn.cgv.co.kr/cgvpomscontent/static/script/e08dec90/_next/static/chunks/8751-1e901c8d24432351.js:351
-[   10066ms] [WARNING] The resource https://cdn.cgv.co.kr/cgvpomscontent/static/script/e08dec90/_next/static/css/f5692389893e2d7f.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://cgv.co.kr/:0
