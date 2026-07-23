@@ -224,6 +224,69 @@ QLabel {{
     color: {TEXT_MUTED};
     font-size: 12px;
 }}
+#sectionLabel {{
+    color: {TEXT_MUTED};
+    font-size: 12px;
+    font-weight: 700;
+    padding-top: 4px;
+}}
+#dateLabel {{
+    color: {GOLD};
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px;
+}}
+
+/* ---- 달력 (날짜 선택) ---- */
+QCalendarWidget {{
+    background-color: {BG_SURFACE};
+    border: 1px solid {LINE};
+    border-radius: 10px;
+}}
+QCalendarWidget QWidget#qt_calendar_navigationbar {{
+    background-color: {BG_ELEVATED};
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}}
+QCalendarWidget QToolButton {{
+    color: {TEXT};
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin: 3px;
+    font-weight: 700;
+    icon-size: 18px;
+}}
+QCalendarWidget QToolButton:hover {{
+    background-color: {ACCENT};
+    color: #FFFFFF;
+}}
+QCalendarWidget QMenu {{
+    background-color: {BG_SURFACE};
+    border: 1px solid {LINE};
+    border-radius: 8px;
+}}
+QCalendarWidget QSpinBox {{
+    background-color: {BG_BASE};
+    color: {TEXT};
+    border: 1px solid {LINE};
+    border-radius: 6px;
+    padding: 2px 6px;
+}}
+/* 날짜 그리드 */
+QCalendarWidget QAbstractItemView:enabled {{
+    background-color: {BG_SURFACE};
+    color: {TEXT};
+    selection-background-color: {ACCENT};
+    selection-color: #FFFFFF;
+    outline: none;
+    font-size: 14px;
+}}
+/* 지난 날짜(선택 불가)는 흐리게 */
+QCalendarWidget QAbstractItemView:disabled {{
+    color: #5A4E44;
+}}
 
 /* ---- 상태 바 ---- */
 QStatusBar {{
