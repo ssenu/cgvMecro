@@ -1,0 +1,196 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e6]:
+    - generic:
+      - button "본문 바로가기" [ref=f2e43] [cursor=pointer]
+      - button "주요메뉴 바로가기" [ref=f2e44] [cursor=pointer]
+    - generic [ref=f2e1262]:
+      - generic [ref=f2e1264]:
+        - generic [ref=f2e1267]:
+          - generic [ref=f2e1268]:
+            - heading [level=2] [ref=f2e1269]:
+              - button "영화별 예매" [ref=f2e1270] [cursor=pointer]
+              - text: 극장별 예매
+            - button "닫기" [ref=f2e1271] [cursor=pointer]
+          - generic [ref=f2e1275]:
+            - generic [ref=f2e1276]:
+              - heading "2024년 5월" [level=2] [ref=f2e1277]
+              - generic [ref=f2e1279]:
+                - button "오늘 23" [disabled] [ref=f2e1281] [cursor=pointer]:
+                  - generic [ref=f2e1282]: 오늘
+                  - generic [ref=f2e1283]: "23"
+                - button "금 24" [disabled] [ref=f2e1285] [cursor=pointer]:
+                  - generic [ref=f2e1286]: 금
+                  - generic [ref=f2e1287]: "24"
+                - button "토 25" [disabled] [ref=f2e1289] [cursor=pointer]:
+                  - generic [ref=f2e1290]: 토
+                  - generic [ref=f2e1291]: "25"
+                - button "일 26" [disabled] [ref=f2e1293] [cursor=pointer]:
+                  - generic [ref=f2e1294]: 일
+                  - generic [ref=f2e1295]: "26"
+                - button "월 27" [disabled] [ref=f2e1297] [cursor=pointer]:
+                  - generic [ref=f2e1298]: 월
+                  - generic [ref=f2e1299]: "27"
+                - button "화 28" [disabled] [ref=f2e1301] [cursor=pointer]:
+                  - generic [ref=f2e1302]: 화
+                  - generic [ref=f2e1303]: "28"
+                - button "수 29" [disabled] [ref=f2e1305] [cursor=pointer]:
+                  - generic [ref=f2e1306]: 수
+                  - generic [ref=f2e1307]: "29"
+                - button "목 30" [disabled] [ref=f2e1309] [cursor=pointer]:
+                  - generic [ref=f2e1310]: 목
+                  - generic [ref=f2e1311]: "30"
+            - generic [ref=f2e1312]:
+              - button "전체" [ref=f2e1313] [cursor=pointer]
+              - button "오전" [ref=f2e1314] [cursor=pointer]
+              - button "오후" [ref=f2e1315] [cursor=pointer]
+              - button "18시 이후" [ref=f2e1316] [cursor=pointer]
+              - button "심야" [ref=f2e1317] [cursor=pointer]
+        - generic [ref=f2e1318]:
+          - paragraph [ref=f2e1319]: 선택 된 극장이 없습니다.
+          - button "자주가는 CGV 목록 수정" [ref=f2e1321] [cursor=pointer]
+        - generic [ref=f2e1328]:
+          - generic [ref=f2e1330]:
+            - button "영화순" [ref=f2e1331] [cursor=pointer]
+            - button "시간순" [ref=f2e1332] [cursor=pointer]
+          - button "극장 속성" [ref=f2e1334] [cursor=pointer]: 전체
+      - dialog [ref=f2e1338]:
+        - generic [ref=f2e1340]:
+          - button [ref=f2e1342] [cursor=pointer]:
+            - generic [ref=f2e1343]: 닫기
+          - generic [ref=f2e1347]:
+            - button "지역별" [ref=f2e1348] [cursor=pointer]
+            - button "특별관" [ref=f2e1349] [cursor=pointer]
+          - generic [ref=f2e1350]:
+            - generic [ref=f2e1351]:
+              - generic [ref=f2e1352]: 검색
+              - searchbox "검색" [ref=f2e1353]
+              - button "검색하기" [ref=f2e1354] [cursor=pointer]
+            - generic [ref=f2e1359]:
+              - list [ref=f2e1360]:
+                - listitem [ref=f2e1361]:
+                  - button "서울(28)" [ref=f2e1362] [cursor=pointer]:
+                    - text: 서울
+                    - generic [ref=f2e1363]: (28)
+                - listitem [ref=f2e1364]:
+                  - button "경기(52)" [ref=f2e1365] [cursor=pointer]:
+                    - text: 경기
+                    - generic [ref=f2e1366]: (52)
+                - listitem [ref=f2e1367]:
+                  - button "인천(11)" [ref=f2e1368] [cursor=pointer]:
+                    - text: 인천
+                    - generic [ref=f2e1369]: (11)
+                - listitem [ref=f2e1370]:
+                  - button "강원(5)" [ref=f2e1371] [cursor=pointer]:
+                    - text: 강원
+                    - generic [ref=f2e1372]: (5)
+                - listitem [ref=f2e1373]:
+                  - button "대전/충청(20)" [ref=f2e1374] [cursor=pointer]:
+                    - text: 대전/충청
+                    - generic [ref=f2e1375]: (20)
+                - listitem [ref=f2e1376]:
+                  - button "대구(8)" [ref=f2e1377] [cursor=pointer]:
+                    - text: 대구
+                    - generic [ref=f2e1378]: (8)
+                - listitem [ref=f2e1379]:
+                  - button "부산/울산(18)" [ref=f2e1380] [cursor=pointer]:
+                    - text: 부산/울산
+                    - generic [ref=f2e1381]: (18)
+                - listitem [ref=f2e1382]:
+                  - button "경상(14)" [ref=f2e1383] [cursor=pointer]:
+                    - text: 경상
+                    - generic [ref=f2e1384]: (14)
+                - listitem [ref=f2e1385]:
+                  - button "광주/전라/제주(20)" [ref=f2e1386] [cursor=pointer]:
+                    - text: 광주/전라/제주
+                    - generic [ref=f2e1387]: (20)
+              - generic [ref=f2e1389]:
+                - strong [ref=f2e1391]:
+                  - text: 전체
+                  - generic [ref=f2e1392]: (28)
+                - list [ref=f2e1394]:
+                  - listitem [ref=f2e1395]:
+                    - button [ref=f2e1396] [cursor=pointer]:
+                      - paragraph [ref=f2e1397]: 강남
+                  - listitem [ref=f2e1398]:
+                    - button [ref=f2e1399] [cursor=pointer]:
+                      - paragraph [ref=f2e1400]: 강변
+                  - listitem [ref=f2e1401]:
+                    - button [ref=f2e1402] [cursor=pointer]:
+                      - paragraph [ref=f2e1403]: 건대입구
+                  - listitem [ref=f2e1404]:
+                    - button [ref=f2e1405] [cursor=pointer]:
+                      - paragraph [ref=f2e1406]: 고덕강일
+                  - listitem [ref=f2e1407]:
+                    - button [ref=f2e1408] [cursor=pointer]:
+                      - paragraph [ref=f2e1409]: 구로
+                  - listitem [ref=f2e1410]:
+                    - button [ref=f2e1411] [cursor=pointer]:
+                      - paragraph [ref=f2e1412]: 대학로
+                  - listitem [ref=f2e1413]:
+                    - button [ref=f2e1414] [cursor=pointer]:
+                      - paragraph [ref=f2e1415]: 동대문
+                  - listitem [ref=f2e1416]:
+                    - button [ref=f2e1417] [cursor=pointer]:
+                      - paragraph [ref=f2e1418]: 등촌
+                  - listitem [ref=f2e1419]:
+                    - button [ref=f2e1420] [cursor=pointer]:
+                      - paragraph [ref=f2e1421]: 명동
+                  - listitem [ref=f2e1422]:
+                    - button [ref=f2e1423] [cursor=pointer]:
+                      - paragraph [ref=f2e1424]: 미아
+                  - listitem [ref=f2e1425]:
+                    - button [ref=f2e1426] [cursor=pointer]:
+                      - paragraph [ref=f2e1427]: 방학
+                  - listitem [ref=f2e1428]:
+                    - button [ref=f2e1429] [cursor=pointer]:
+                      - paragraph [ref=f2e1430]: 불광
+                  - listitem [ref=f2e1431]:
+                    - button [ref=f2e1432] [cursor=pointer]:
+                      - paragraph [ref=f2e1433]: 상봉
+                  - listitem [ref=f2e1434]:
+                    - button [ref=f2e1435] [cursor=pointer]:
+                      - paragraph [ref=f2e1436]: 성신여대입구
+                  - listitem [ref=f2e1437]:
+                    - button [ref=f2e1438] [cursor=pointer]:
+                      - paragraph [ref=f2e1439]: 수유
+                  - listitem [ref=f2e1440]:
+                    - button [ref=f2e1441] [cursor=pointer]:
+                      - paragraph [ref=f2e1442]: 신촌아트레온
+                  - listitem [ref=f2e1443]:
+                    - button [ref=f2e1444] [cursor=pointer]:
+                      - paragraph [ref=f2e1445]: 압구정
+                  - listitem [ref=f2e1446]:
+                    - button [ref=f2e1447] [cursor=pointer]:
+                      - paragraph [ref=f2e1448]: 씨네드쉐프 압구정
+                  - listitem [ref=f2e1449]:
+                    - button [ref=f2e1450] [cursor=pointer]:
+                      - paragraph [ref=f2e1451]: 연남
+                  - listitem [ref=f2e1452]:
+                    - button [ref=f2e1453] [cursor=pointer]:
+                      - paragraph [ref=f2e1454]: 영등포타임스퀘어
+                  - listitem [ref=f2e1455]:
+                    - button [ref=f2e1456] [cursor=pointer]:
+                      - paragraph [ref=f2e1457]: 왕십리
+                  - listitem [ref=f2e1458]:
+                    - button [ref=f2e1459] [cursor=pointer]:
+                      - paragraph [ref=f2e1460]: 용산아이파크몰
+                  - listitem [ref=f2e1461]:
+                    - button [ref=f2e1462] [cursor=pointer]:
+                      - paragraph [ref=f2e1463]: 씨네드쉐프 용산
+                  - listitem [ref=f2e1464]:
+                    - button [ref=f2e1465] [cursor=pointer]:
+                      - paragraph [ref=f2e1466]: 중계
+                  - listitem [ref=f2e1467]:
+                    - button [ref=f2e1468] [cursor=pointer]:
+                      - paragraph [ref=f2e1469]: 천호
+                  - listitem [ref=f2e1470]:
+                    - button [ref=f2e1471] [cursor=pointer]:
+                      - paragraph [ref=f2e1472]: 청담씨네시티
+                  - listitem [ref=f2e1473]:
+                    - button [ref=f2e1474] [cursor=pointer]:
+                      - paragraph [ref=f2e1475]: 피카디리1958
+                  - listitem [ref=f2e1476]:
+                    - button [ref=f2e1477] [cursor=pointer]:
+                      - paragraph [ref=f2e1478]: 홍대
+          - button "닫기" [ref=f2e1480] [cursor=pointer]
+  - alert [ref=f2e123]

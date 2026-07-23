@@ -1,0 +1,715 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - dialog [ref=e7]:
+        - generic [ref=e9]:
+          - button "AD 선착순! CGV 한정 특가 영화+콤보 11,200원 할인 자세히보기" [ref=e13] [cursor=pointer]:
+            - generic [ref=e14]:
+              - generic [ref=e15]: AD
+              - generic [ref=e17]:
+                - generic [ref=e18]: 선착순! CGV 한정 특가
+                - strong [ref=e19]: 영화+콤보 11,200원 할인
+                - generic [ref=e20]: 자세히보기
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]:
+                - button [ref=e26] [cursor=pointer]:
+                  - img "오디세이 내한 무대인사 최초 시사 초대 이벤트" [ref=e28]
+                - button [ref=e30] [cursor=pointer]:
+                  - img "컨세션_모아나 MD" [ref=e32]
+                - button [ref=e34] [cursor=pointer]:
+                  - img "스파이더맨:브랜드 뉴 데이] EARLY SPIDER 사전 예매 이벤트" [ref=e36]
+                - button [ref=e38] [cursor=pointer]:
+                  - img "매점 미니언즈 MD" [ref=e40]
+                - button [ref=e42] [cursor=pointer]:
+                  - img "[드림 애니멀즈-더 무비] 개봉주~개봉2주차 무대인사" [ref=e44]
+              - generic [ref=e45]:
+                - button "첫번째" [ref=e46] [cursor=pointer]
+                - button "두번째" [ref=e47] [cursor=pointer]
+                - button "세번째" [ref=e48] [cursor=pointer]
+                - button "네번째" [ref=e49] [cursor=pointer]
+                - button "다섯번째" [ref=e50] [cursor=pointer]
+            - generic [ref=e51]:
+              - button "오늘은 그만 보기" [ref=e52] [cursor=pointer]
+              - button "닫기" [ref=e53] [cursor=pointer]
+      - generic:
+        - button "본문 바로가기" [ref=e54] [cursor=pointer]
+        - button "주요메뉴 바로가기" [ref=e55] [cursor=pointer]
+      - generic [ref=e57]:
+        - banner [ref=e58]:
+          - generic [ref=e60]:
+            - heading [level=1] [ref=e61] [cursor=pointer]:
+              - button [ref=e62]:
+                - img "CGV" [ref=e63]
+            - generic [ref=e64]:
+              - button "티켓" [ref=e65] [cursor=pointer]
+              - button "알림" [ref=e70] [cursor=pointer]
+              - button "검색" [ref=e75] [cursor=pointer]
+        - main [ref=e81]:
+          - generic [ref=e87]:
+            - button "영화탭 아이콘 영화" [ref=e89] [cursor=pointer]:
+              - img "영화탭 아이콘" [ref=e90]
+              - generic [ref=e91]: 영화
+            - button "이벤트/혜택 아이콘이벤트/혜택" [ref=e93] [cursor=pointer]:
+              - img "이벤트/혜택 아이콘"
+              - text: 이벤트/혜택
+            - button "스파이더맨:브랜드 뉴데이 아이콘스파이더맨" [ref=e95] [cursor=pointer]:
+              - img "스파이더맨:브랜드 뉴데이 아이콘"
+              - text: 스파이더맨
+            - button "미니언즈 이모지미니언즈" [ref=e97] [cursor=pointer]:
+              - img "미니언즈 이모지"
+              - text: 미니언즈
+            - button "단체 대관 아이콘단체/대관" [ref=e99] [cursor=pointer]:
+              - img "단체 대관 아이콘"
+              - text: 단체/대관
+            - button "액티비티 아이콘액티비티" [ref=e101] [cursor=pointer]:
+              - img "액티비티 아이콘"
+              - text: 액티비티
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - generic [ref=e108]:
+                - button "무비차트" [ref=e110] [cursor=pointer]
+                - button "현재상영작" [ref=e112] [cursor=pointer]
+                - button "상영예정" [ref=e114] [cursor=pointer]
+                - button "ICECON" [ref=e116] [cursor=pointer]
+                - button "아트하우스" [ref=e118] [cursor=pointer]
+                - button "CGV Only" [ref=e120] [cursor=pointer]
+              - button "전체보기" [ref=e122] [cursor=pointer]
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - button "AD 최대 23,000원 혜택!택" [ref=e130] [cursor=pointer]:
+                  - generic [ref=e131]: AD
+                  - img "최대 23,000원 혜택!택" [ref=e132]
+                - generic [ref=e133]:
+                  - paragraph [ref=e134]:
+                    - generic [ref=e135]: 최대 23,000원 혜택!택
+                  - paragraph [ref=e137]: IM뱅크 첫 로그인하고 혜택 받아가세요
+                  - button "자세히 보기" [ref=e138] [cursor=pointer]
+              - generic [ref=e139]:
+                - generic [ref=e140]:
+                  - button "스파이더맨-브랜드 뉴 데이 포스터 현재 순위" [ref=e141] [cursor=pointer]:
+                    - img "스파이더맨-브랜드 뉴 데이 포스터" [ref=e142]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e144] [cursor=pointer]
+                  - paragraph [ref=e148]:
+                    - img "SCREENX" [ref=e150]
+                    - img "4DX" [ref=e152]
+                    - img "IMAX" [ref=e154]
+                - generic [ref=e155]:
+                  - paragraph [ref=e156]:
+                    - generic [ref=e157]: 스파이더맨-브랜드 뉴 데이
+                    - img "12세 관람가" [ref=e158]
+                  - generic [ref=e159]:
+                    - generic [ref=e160]: 예매율 52.1%
+                    - generic [ref=e161]: 2026.07.29 개봉
+                    - strong [ref=e162]: D-6
+                  - button "예매하기" [ref=e163] [cursor=pointer]
+              - generic [ref=e164]:
+                - generic [ref=e165]:
+                  - button "호프 포스터 현재 순위" [ref=e166] [cursor=pointer]:
+                    - img "호프 포스터" [ref=e167]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e169] [cursor=pointer]
+                  - paragraph [ref=e173]:
+                    - img "SCREENX" [ref=e175]
+                    - img "4DX" [ref=e177]
+                    - img "IMAX" [ref=e179]
+                - generic [ref=e180]:
+                  - paragraph [ref=e181]:
+                    - generic [ref=e182]: 호프
+                    - img "15세 관람가" [ref=e183]
+                  - generic [ref=e184]:
+                    - complementary [ref=e185]: 에그지수
+                    - text: 83%
+                    - generic [ref=e189]: 예매율 23.5%
+                    - generic [ref=e190]: 누적 253.3만
+                  - button "예매하기" [ref=e191] [cursor=pointer]
+              - generic [ref=e192]:
+                - button "AD 최대 23,000원 혜택!" [ref=e194] [cursor=pointer]:
+                  - generic [ref=e195]: AD
+                  - img "최대 23,000원 혜택!" [ref=e196]
+                - generic [ref=e197]:
+                  - paragraph [ref=e198]:
+                    - generic [ref=e199]: 최대 23,000원 혜택!
+                  - paragraph [ref=e201]: IM뱅크 첫 로그인하고 혜택 받아가세요
+                  - button "자세히 보기" [ref=e202] [cursor=pointer]
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - button "오디세이 포스터 현재 순위" [ref=e205] [cursor=pointer]:
+                    - img "오디세이 포스터" [ref=e206]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e208] [cursor=pointer]
+                  - paragraph [ref=e212]:
+                    - img "4DX" [ref=e214]
+                    - img "IMAX" [ref=e216]
+                - generic [ref=e217]:
+                  - paragraph [ref=e218]:
+                    - generic [ref=e219]: 오디세이
+                    - img "15세 관람가" [ref=e220]
+                  - generic [ref=e221]:
+                    - generic [ref=e222]: 예매율 15.3%
+                    - generic [ref=e223]: 2026.08.05 개봉
+                    - strong [ref=e224]: D-13
+                  - button "예매하기" [ref=e225] [cursor=pointer]
+              - generic [ref=e226]:
+                - generic [ref=e227]:
+                  - button "미니언즈 & 몬스터즈 포스터 현재 순위" [ref=e228] [cursor=pointer]:
+                    - img "미니언즈 & 몬스터즈 포스터" [ref=e229]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e231] [cursor=pointer]
+                  - paragraph [ref=e235]:
+                    - img "SCREENX" [ref=e237]
+                    - img "4DX" [ref=e239]
+                - generic [ref=e240]:
+                  - paragraph [ref=e241]:
+                    - generic [ref=e242]: 미니언즈 & 몬스터즈
+                    - img "전체 관람가" [ref=e243]
+                  - generic [ref=e244]:
+                    - complementary [ref=e245]: 에그지수
+                    - text: 94%
+                    - generic [ref=e250]: 예매율 2.4%
+                    - generic [ref=e251]: 누적 42.8만
+                  - button "예매하기" [ref=e252] [cursor=pointer]
+              - generic [ref=e253]:
+                - button "AD Kbank 에티켓 영상 대개봉" [ref=e255] [cursor=pointer]:
+                  - generic [ref=e256]: AD
+                  - img "Kbank 에티켓 영상 대개봉" [ref=e257]
+                - generic [ref=e258]:
+                  - paragraph [ref=e259]:
+                    - generic [ref=e260]: Kbank 에티켓 영상 대개봉
+                  - paragraph [ref=e262]: 스크린을 뚫고 나오는 압도적 귀여움!
+                  - button "자세히 보기" [ref=e263] [cursor=pointer]
+              - generic [ref=e264]:
+                - generic [ref=e265]:
+                  - button "모아나 포스터 현재 순위" [ref=e266] [cursor=pointer]:
+                    - img "모아나 포스터" [ref=e267]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e269] [cursor=pointer]
+                  - paragraph [ref=e273]:
+                    - img "SCREENX" [ref=e275]
+                    - img "4DX" [ref=e277]
+                - generic [ref=e278]:
+                  - paragraph [ref=e279]:
+                    - generic [ref=e280]: 모아나
+                    - img "전체 관람가" [ref=e281]
+                  - generic [ref=e282]:
+                    - complementary [ref=e283]: 에그지수
+                    - text: 95%
+                    - generic [ref=e288]: 예매율 1.5%
+                    - generic [ref=e289]: 누적 80.8만
+                  - button "예매하기" [ref=e290] [cursor=pointer]
+              - generic [ref=e291]:
+                - generic [ref=e292]:
+                  - button "사랑의 하츄핑-고래보석의 전설 포스터 현재 순위" [ref=e293] [cursor=pointer]:
+                    - img "사랑의 하츄핑-고래보석의 전설 포스터" [ref=e294]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e296] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e300]:
+                  - paragraph [ref=e301]:
+                    - generic [ref=e302]: 사랑의 하츄핑-고래보석의 전설
+                    - img "전체 관람가" [ref=e303]
+                  - generic [ref=e304]:
+                    - generic [ref=e305]: 예매율 1%
+                    - generic [ref=e306]: 2026.08.05 개봉
+                    - strong [ref=e307]: D-13
+                  - button "예매하기" [ref=e308] [cursor=pointer]
+              - generic [ref=e309]:
+                - generic [ref=e310]:
+                  - button "토이 스토리 5 포스터 현재 순위" [ref=e311] [cursor=pointer]:
+                    - img "토이 스토리 5 포스터" [ref=e312]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e314] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e318]:
+                  - paragraph [ref=e319]:
+                    - generic [ref=e320]: 토이 스토리 5
+                    - img "전체 관람가" [ref=e321]
+                  - generic [ref=e322]:
+                    - complementary [ref=e323]: 에그지수
+                    - text: 97%
+                    - generic [ref=e328]: 예매율 0.9%
+                    - generic [ref=e329]: 누적 277.5만
+                  - button "예매하기" [ref=e330] [cursor=pointer]
+              - generic [ref=e331]:
+                - generic [ref=e332]:
+                  - button "드림 애니멀즈-더무비 포스터 현재 순위" [ref=e333] [cursor=pointer]:
+                    - img "드림 애니멀즈-더무비 포스터" [ref=e334]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e336] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e340]:
+                  - paragraph [ref=e341]:
+                    - generic [ref=e342]: 드림 애니멀즈-더무비
+                    - img "전체 관람가" [ref=e343]
+                  - generic [ref=e344]:
+                    - generic [ref=e345]: 예매율 0.7%
+                    - generic [ref=e346]: 2026.07.24 개봉
+                    - strong [ref=e347]: D-1
+                  - button "예매하기" [ref=e348] [cursor=pointer]
+              - generic [ref=e349]:
+                - generic [ref=e350]:
+                  - button "눈동자 포스터 현재 순위" [ref=e351] [cursor=pointer]:
+                    - img "눈동자 포스터" [ref=e352]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e354] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e358]:
+                  - paragraph [ref=e359]:
+                    - generic [ref=e360]: 눈동자
+                    - img "15세 관람가" [ref=e361]
+                  - generic [ref=e362]:
+                    - complementary [ref=e363]: 에그지수
+                    - text: 89%
+                    - generic [ref=e368]: 예매율 0.6%
+                    - generic [ref=e369]: 누적 146.5만
+                  - button "예매하기" [ref=e370] [cursor=pointer]
+              - generic [ref=e371]:
+                - generic [ref=e372]:
+                  - button "다윗 포스터 현재 순위" [ref=e373] [cursor=pointer]:
+                    - img "다윗 포스터" [ref=e374]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e376] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e380]:
+                  - paragraph [ref=e381]:
+                    - generic [ref=e382]: 다윗
+                    - img "전체 관람가" [ref=e383]
+                  - generic [ref=e384]:
+                    - complementary [ref=e385]: 에그지수
+                    - text: 94%
+                    - generic [ref=e390]: 예매율 0.6%
+                    - generic [ref=e391]: 누적 16.9만
+                  - button "예매하기" [ref=e392] [cursor=pointer]
+              - generic [ref=e393]:
+                - generic [ref=e394]:
+                  - button "마티 슈프림 포스터 현재 순위" [ref=e395] [cursor=pointer]:
+                    - img "마티 슈프림 포스터" [ref=e396]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e398] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e402]:
+                  - paragraph [ref=e403]:
+                    - generic [ref=e404]: 마티 슈프림
+                    - img "15세 관람가" [ref=e405]
+                  - generic [ref=e406]:
+                    - complementary [ref=e407]: 에그지수
+                    - text: 90%
+                    - generic [ref=e412]: 예매율 0.2%
+                    - generic [ref=e413]: 누적 11.9만
+                  - button "예매하기" [ref=e414] [cursor=pointer]
+              - generic [ref=e415]:
+                - generic [ref=e416]:
+                  - button "뱀의 길 포스터 현재 순위" [ref=e417] [cursor=pointer]:
+                    - img "뱀의 길 포스터" [ref=e418]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e420] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e424]:
+                  - paragraph [ref=e425]:
+                    - generic [ref=e426]: 뱀의 길
+                    - img "15세 관람가" [ref=e427]
+                  - generic [ref=e428]:
+                    - complementary [ref=e429]: 에그지수
+                    - text: 91%
+                    - generic [ref=e434]: 예매율 0.1%
+                    - generic [ref=e435]: 누적 1,095
+                  - button "예매하기" [ref=e436] [cursor=pointer]
+              - generic [ref=e437]:
+                - generic [ref=e438]:
+                  - button "지느러미 포스터 현재 순위" [ref=e439] [cursor=pointer]:
+                    - img "지느러미 포스터" [ref=e440]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e442] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e446]:
+                  - paragraph [ref=e447]:
+                    - generic [ref=e448]: 지느러미
+                    - img "15세 관람가" [ref=e449]
+                  - generic [ref=e450]:
+                    - complementary [ref=e451]: 에그지수
+                    - text: 63%
+                    - generic [ref=e459]: 예매율 0.1%
+                    - generic [ref=e460]: 누적 2,542
+                  - button "예매하기" [ref=e461] [cursor=pointer]
+              - generic [ref=e462]:
+                - generic [ref=e463]:
+                  - button "너바나 더 밴드-전설적 밴드 너바나와는 별 관련 없는 너바나 더 밴드의 콤 포스터 현재 순위" [ref=e464] [cursor=pointer]:
+                    - img "너바나 더 밴드-전설적 밴드 너바나와는 별 관련 없는 너바나 더 밴드의 콤 포스터" [ref=e465]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e467] [cursor=pointer]
+                  - img "CGV ONLY_NEW" [ref=e472]
+                  - paragraph
+                - generic [ref=e473]:
+                  - paragraph [ref=e474]:
+                    - generic [ref=e475]: 너바나 더 밴드-전설적 밴드 너바나와는 별 관련 없는 너바나 더 밴드의 콤
+                    - img "12세 관람가" [ref=e476]
+                  - generic [ref=e477]:
+                    - complementary [ref=e478]: 에그지수
+                    - text: 93%
+                    - generic [ref=e483]: 예매율 0.1%
+                    - generic [ref=e484]: 누적 9.4만
+                  - button "예매하기" [ref=e485] [cursor=pointer]
+              - generic [ref=e486]:
+                - generic [ref=e487]:
+                  - button "시크릿 에이전트 포스터 현재 순위" [ref=e488] [cursor=pointer]:
+                    - img "시크릿 에이전트 포스터" [ref=e489]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e491] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e495]:
+                  - paragraph [ref=e496]:
+                    - generic [ref=e497]: 시크릿 에이전트
+                    - img "15세 관람가" [ref=e498]
+                  - generic [ref=e499]:
+                    - complementary [ref=e500]: 에그지수
+                    - text: 93%
+                    - generic [ref=e505]: 예매율 0.1%
+                    - generic [ref=e506]: 누적 1.4만
+                  - button "예매하기" [ref=e507] [cursor=pointer]
+              - generic [ref=e508]:
+                - generic [ref=e509]:
+                  - button "경멸 포스터 현재 순위" [ref=e510] [cursor=pointer]:
+                    - img "경멸 포스터" [ref=e511]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e513] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e517]:
+                  - paragraph [ref=e518]:
+                    - generic [ref=e519]: 경멸
+                    - img "15세 관람가" [ref=e520]
+                  - generic [ref=e521]:
+                    - complementary [ref=e522]: 에그지수
+                    - text: 90%
+                    - generic [ref=e527]: 예매율 0.1%
+                    - generic [ref=e528]: 누적 5,065
+                  - button "예매하기" [ref=e529] [cursor=pointer]
+              - generic [ref=e530]:
+                - generic [ref=e531]:
+                  - button "큐어 포스터 현재 순위" [ref=e532] [cursor=pointer]:
+                    - img "큐어 포스터" [ref=e533]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e535] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e539]:
+                  - paragraph [ref=e540]:
+                    - generic [ref=e541]: 큐어
+                    - img "15세 관람가" [ref=e542]
+                  - generic [ref=e543]:
+                    - complementary [ref=e544]: 에그지수
+                    - text: 92%
+                    - generic [ref=e549]: 예매율 0.1%
+                    - generic [ref=e550]: 누적 3.4만
+                  - button "예매하기" [ref=e551] [cursor=pointer]
+              - generic [ref=e552]:
+                - generic [ref=e553]:
+                  - button "2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing 포스터 현재 순위" [ref=e554] [cursor=pointer]:
+                    - img "2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing 포스터" [ref=e555]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e557] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e561]:
+                  - paragraph [ref=e562]:
+                    - generic [ref=e563]: 2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing
+                    - img "12세 관람가" [ref=e564]
+                  - generic [ref=e565]:
+                    - generic [ref=e566]: 예매율 0.1%
+                    - generic [ref=e567]: 2026.07.26 개봉
+                    - strong [ref=e568]: D-3
+                  - button "예매하기" [ref=e569] [cursor=pointer]
+              - generic [ref=e570]:
+                - generic [ref=e571]:
+                  - button "군체 포스터 현재 순위" [ref=e572] [cursor=pointer]:
+                    - img "군체 포스터" [ref=e573]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e575] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e579]:
+                  - paragraph [ref=e580]:
+                    - generic [ref=e581]: 군체
+                    - img "15세 관람가" [ref=e582]
+                  - generic [ref=e583]:
+                    - complementary [ref=e584]: 에그지수
+                    - text: 89%
+                    - generic [ref=e589]: 예매율 0.1%
+                    - generic [ref=e590]: 누적 594.4만
+                  - button "예매하기" [ref=e591] [cursor=pointer]
+              - generic [ref=e592]:
+                - generic [ref=e593]:
+                  - button "모노노케 히메 포스터 현재 순위" [ref=e594] [cursor=pointer]:
+                    - img "모노노케 히메 포스터" [ref=e595]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e597] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e601]:
+                  - paragraph [ref=e602]:
+                    - generic [ref=e603]: 모노노케 히메
+                    - img "전체 관람가" [ref=e604]
+                  - generic [ref=e605]:
+                    - complementary [ref=e606]: 에그지수
+                    - text: 98%
+                    - generic [ref=e611]: 예매율 0.1%
+                    - generic [ref=e612]: 누적 20.4만
+                  - button "예매하기" [ref=e613] [cursor=pointer]
+              - generic [ref=e614]:
+                - generic [ref=e615]:
+                  - button "회로 포스터 현재 순위" [ref=e616] [cursor=pointer]:
+                    - img "회로 포스터" [ref=e617]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e619] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e623]:
+                  - paragraph [ref=e624]:
+                    - generic [ref=e625]: 회로
+                    - img "15세 관람가" [ref=e626]
+                  - generic [ref=e627]:
+                    - complementary [ref=e628]: 에그지수
+                    - text: 83%
+                    - generic [ref=e632]: 예매율 0.1%
+                    - generic [ref=e633]: 누적 7,339
+                  - button "예매하기" [ref=e634] [cursor=pointer]
+              - generic [ref=e635]:
+                - generic [ref=e636]:
+                  - button "극장판 암살교실 모두의 시간 포스터 현재 순위" [ref=e637] [cursor=pointer]:
+                    - img "극장판 암살교실 모두의 시간 포스터" [ref=e638]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e640] [cursor=pointer]
+                  - img "CGV ONLY_NEW" [ref=e645]
+                  - paragraph
+                - generic [ref=e646]:
+                  - paragraph [ref=e647]:
+                    - generic [ref=e648]: 극장판 암살교실 모두의 시간
+                    - img "15세 관람가" [ref=e649]
+                  - generic [ref=e650]:
+                    - complementary [ref=e651]: 에그지수
+                    - text: 93%
+                    - generic [ref=e656]: 예매율 0%
+                    - generic [ref=e657]: 누적 3만
+                  - button "예매하기" [ref=e658] [cursor=pointer]
+              - generic [ref=e659]:
+                - generic [ref=e660]:
+                  - button "어떻게 해야 했을까 포스터 현재 순위" [ref=e661] [cursor=pointer]:
+                    - img "어떻게 해야 했을까 포스터" [ref=e662]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e664] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e668]:
+                  - paragraph [ref=e669]:
+                    - generic [ref=e670]: 어떻게 해야 했을까
+                    - img "12세 관람가" [ref=e671]
+                  - generic [ref=e672]:
+                    - generic [ref=e673]: 예매율 0%
+                    - generic [ref=e674]: 2026.07.29 개봉
+                    - strong [ref=e675]: D-6
+                  - button "예매하기" [ref=e676] [cursor=pointer]
+              - generic [ref=e677]:
+                - generic [ref=e678]:
+                  - button "파리의 사생활 포스터 현재 순위" [ref=e679] [cursor=pointer]:
+                    - img "파리의 사생활 포스터" [ref=e680]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e682] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e686]:
+                  - paragraph [ref=e687]:
+                    - generic [ref=e688]: 파리의 사생활
+                    - img "15세 관람가" [ref=e689]
+                  - generic [ref=e690]:
+                    - complementary [ref=e691]: 에그지수
+                    - text: 91%
+                    - generic [ref=e696]: 예매율 0%
+                    - generic [ref=e697]: 누적 4,266
+                  - button "예매하기" [ref=e698] [cursor=pointer]
+              - generic [ref=e699]:
+                - generic [ref=e700]:
+                  - button "마녀배달부 키키 포스터 현재 순위" [ref=e701] [cursor=pointer]:
+                    - img "마녀배달부 키키 포스터" [ref=e702]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e704] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e708]:
+                  - paragraph [ref=e709]:
+                    - generic [ref=e710]: 마녀배달부 키키
+                    - img "전체 관람가" [ref=e711]
+                  - generic [ref=e712]:
+                    - complementary [ref=e713]: 에그지수
+                    - text: 98%
+                    - generic [ref=e718]: 예매율 0%
+                    - generic [ref=e719]: 누적 13.2만
+                  - button "예매하기" [ref=e720] [cursor=pointer]
+              - generic [ref=e721]:
+                - generic [ref=e722]:
+                  - button "백룸 포스터 현재 순위" [ref=e723] [cursor=pointer]:
+                    - img "백룸 포스터" [ref=e724]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e726] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e730]:
+                  - paragraph [ref=e731]:
+                    - generic [ref=e732]: 백룸
+                    - img "15세 관람가" [ref=e733]
+                  - generic [ref=e734]:
+                    - complementary [ref=e735]: 에그지수
+                    - text: 85%
+                    - generic [ref=e740]: 예매율 0%
+                    - generic [ref=e741]: 누적 121.3만
+                  - button "예매하기" [ref=e742] [cursor=pointer]
+              - generic [ref=e743]:
+                - generic [ref=e744]:
+                  - button "비포 선라이즈 포스터 현재 순위" [ref=e745] [cursor=pointer]:
+                    - img "비포 선라이즈 포스터" [ref=e746]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e748] [cursor=pointer]
+                  - img "CGV ONLY_NEW" [ref=e753]
+                  - paragraph
+                - generic [ref=e754]:
+                  - paragraph [ref=e755]:
+                    - generic [ref=e756]: 비포 선라이즈
+                    - img "15세 관람가" [ref=e757]
+                  - generic [ref=e758]:
+                    - complementary [ref=e759]: 에그지수
+                    - text: 97%
+                    - generic [ref=e764]: 예매율 0%
+                    - generic [ref=e765]: 누적 10.7만
+                  - button "예매하기" [ref=e766] [cursor=pointer]
+              - generic [ref=e767]:
+                - generic [ref=e768]:
+                  - button "산양들 포스터 현재 순위" [ref=e769] [cursor=pointer]:
+                    - img "산양들 포스터" [ref=e770]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e772] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e776]:
+                  - paragraph [ref=e777]:
+                    - generic [ref=e778]: 산양들
+                    - img "12세 관람가" [ref=e779]
+                  - generic [ref=e780]:
+                    - generic [ref=e781]: 예매율 0%
+                    - generic [ref=e782]: 2026.07.29 개봉
+                    - strong [ref=e783]: D-6
+                  - button "예매하기" [ref=e784] [cursor=pointer]
+              - generic [ref=e785]:
+                - generic [ref=e786]:
+                  - button "소영의 노력 포스터 현재 순위" [ref=e787] [cursor=pointer]:
+                    - img "소영의 노력 포스터" [ref=e788]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e790] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e794]:
+                  - paragraph [ref=e795]:
+                    - generic [ref=e796]: 소영의 노력
+                    - img "전체 관람가" [ref=e797]
+                  - generic [ref=e798]:
+                    - complementary [ref=e799]: 에그지수
+                    - text: "?"
+                    - generic [ref=e803]: 예매율 0%
+                    - generic [ref=e804]: 누적 1,167
+                  - button "예매하기" [ref=e805] [cursor=pointer]
+              - generic [ref=e806]:
+                - generic [ref=e807]:
+                  - button "예스! 유 캔 포스터 현재 순위" [ref=e808] [cursor=pointer]:
+                    - img "예스! 유 캔 포스터" [ref=e809]
+                    - generic: 현재 순위
+                  - button "찜 하기" [ref=e811] [cursor=pointer]
+                  - paragraph
+                - generic [ref=e815]:
+                  - paragraph [ref=e816]:
+                    - generic [ref=e817]: 예스! 유 캔
+                    - img "12세 관람가" [ref=e818]
+                  - generic [ref=e819]:
+                    - complementary [ref=e820]: 에그지수
+                    - text: 89%
+                    - generic [ref=e825]: 예매율 0%
+                    - generic [ref=e826]: 누적 145
+                  - button "예매하기" [ref=e827] [cursor=pointer]
+            - button "리스트형" [ref=e828] [cursor=pointer]
+          - generic [ref=e834]:
+            - heading [level=2] [ref=e835]:
+              - button "무엇을 찾고 계신가요?" [ref=e836] [cursor=pointer]
+            - generic [ref=e840]:
+              - generic [ref=e841]:
+                - textbox "검색어" [ref=e842]:
+                  - /placeholder: ""
+                - generic:
+                  - button "무비차트를 검색해 보세요" [ref=e843] [cursor=pointer]
+                  - button "검색하기" [ref=e845] [cursor=pointer]
+              - generic [ref=e851]:
+                - button "팝콘주문" [ref=e852] [cursor=pointer]
+                - button "VIP라운지" [ref=e854] [cursor=pointer]
+                - button "경품 이벤트" [ref=e855] [cursor=pointer]
+          - button "대관 작은 배너 모일수록 더 풍성하고 즐거워진다! CGV 단체/대관 서비스 자세히 보기" [ref=e861] [cursor=pointer]:
+            - generic [ref=e862]:
+              - img "대관 작은 배너" [ref=e864]
+              - generic [ref=e865]:
+                - generic [ref=e866]: 모일수록 더 풍성하고 즐거워진다!
+                - strong [ref=e867]: CGV 단체/대관 서비스
+                - generic [ref=e868]: 자세히 보기
+          - generic [ref=e871]:
+            - generic [ref=e872]:
+              - generic [ref=e873]: CGV 한정 할인 혜택
+              - generic [ref=e877]: AD
+            - generic [ref=e879]:
+              - paragraph [ref=e881]: 지금만 누릴 수 있는 혜택! CGV 인기 상품인 영화 관람권과 콤보 패키지를 특별가로 제공하고 있어요. 선착순으로 제공되는 혜택이니 지금 확인해 보세요!
+              - button [ref=e883] [cursor=pointer]
+            - button "CGV 스페셜 할인 이벤트 지금 할인받기 구매하기" [ref=e886] [cursor=pointer]:
+              - generic [ref=e888]:
+                - generic [ref=e889]: CGV 스페셜 할인 이벤트
+                - generic [ref=e891]: 지금 할인받기
+              - generic [ref=e892]: 구매하기
+          - generic [ref=e898]:
+            - heading "ICECON 라인업" [level=2] [ref=e899]
+            - generic [ref=e901]:
+              - generic [ref=e902]:
+                - button [ref=e904] [cursor=pointer]:
+                  - img "2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing 포스터" [ref=e905]
+                - generic [ref=e906]:
+                  - button "2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing 12세 관람가" [ref=e907] [cursor=pointer]:
+                    - generic [ref=e908]: 2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing
+                    - img "12세 관람가" [ref=e909]
+                  - button "예매하기 2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing" [ref=e911] [cursor=pointer]:
+                    - text: 예매하기
+                    - generic [ref=e912]: 2026 &TEAM CONCERT TOUR 'BLAZE THE WAY' Live Viewing
+              - generic [ref=e913]:
+                - button [ref=e915] [cursor=pointer]:
+                  - img "[시네마투어] 사자의 서 포스터" [ref=e916]
+                  - img "CGV ONLY_NEW" [ref=e918]
+                - generic [ref=e919]:
+                  - button "[시네마투어] 사자의 서 15세 관람가" [ref=e920] [cursor=pointer]:
+                    - generic [ref=e921]: "[시네마투어] 사자의 서"
+                    - img "15세 관람가" [ref=e922]
+                  - button "D-19" [disabled] [ref=e924]
+              - generic [ref=e925]:
+                - button [ref=e927] [cursor=pointer]:
+                  - img "[시네마투어] 엔통이의 동요나라2 포스터" [ref=e928]
+                  - img "CGV ONLY_NEW" [ref=e930]
+                - generic [ref=e931]:
+                  - button "[시네마투어] 엔통이의 동요나라2 전체 관람가" [ref=e932] [cursor=pointer]:
+                    - generic [ref=e933]: "[시네마투어] 엔통이의 동요나라2"
+                    - img "전체 관람가" [ref=e934]
+                  - button "D-26" [disabled] [ref=e936]
+              - generic [ref=e937]:
+                - button [ref=e939] [cursor=pointer]:
+                  - img "[시네마투어] 창극 패왕별희 포스터" [ref=e940]
+                  - img "CGV ONLY_NEW" [ref=e942]
+                - generic [ref=e943]:
+                  - button "[시네마투어] 창극 패왕별희 15세 관람가" [ref=e944] [cursor=pointer]:
+                    - generic [ref=e945]: "[시네마투어] 창극 패왕별희"
+                    - img "15세 관람가" [ref=e946]
+                  - button "D-12" [disabled] [ref=e948]
+          - generic [ref=e973]:
+            - heading [level=2] [ref=e975]:
+              - button "CJ CGV(주)" [ref=e976] [cursor=pointer]
+            - generic [ref=e980]:
+              - button "회사소개" [ref=e981] [cursor=pointer]
+              - button "이용약관" [ref=e982] [cursor=pointer]
+              - button "개인정보 처리방침" [ref=e983] [cursor=pointer]
+              - button "위치기반서비스 이용약관" [ref=e984] [cursor=pointer]
+              - button "법적고지" [ref=e985] [cursor=pointer]
+              - button "편성원칙" [ref=e986] [cursor=pointer]
+    - navigation [ref=e987]:
+      - generic [ref=e989]:
+        - button "홈" [ref=e990] [cursor=pointer]
+        - button "씨네톡" [ref=e994] [cursor=pointer]
+        - button "예매·예약" [ref=e1001] [cursor=pointer]
+        - button "매점" [ref=e1004] [cursor=pointer]
+        - button "더보기" [ref=e1013] [cursor=pointer]
+  - alert [ref=e1020]

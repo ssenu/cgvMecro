@@ -1,0 +1,19 @@
+[     763ms] [INFO] ExtrnlAd Missing @ https://cdn.cgv.co.kr/cgvpomscontent/static/script/e08dec90/_next/static/chunks/8751-1e901c8d24432351.js:351
+[   21634ms] [INFO] ExtrnlAd Missing @ https://cdn.cgv.co.kr/cgvpomscontent/static/script/e08dec90/_next/static/chunks/9383-c5348c2c55e7f7cd.js:24
+[ 1336340ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchScnschList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1336366ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchAtktScnschList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1336439ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchScheduleList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1336471ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchAtktScheduleList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1336500ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchPlaySchdlList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1336529ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchScnschByCine?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1336555ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchAtktCineScnschList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1423847ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://api.cgv.co.kr/cnm/atkt/searchSiteScnscYmdListBySite?coCd=A420&siteNo=0056:0
+[ 1423866ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://api.cgv.co.kr/cnm/site/searchSscnsScnList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1423887ms] [ERROR] Access to fetch at 'https://api.cgv.co.kr/cnm/atkt/searchSiteScnscListByMov?coCd=A420&siteNo=0056&scnYmd=20260723' from origin 'https://cgv.co.kr' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://cgv.co.kr/cnm/movieBook/cinema:0
+[ 1423887ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.cgv.co.kr/cnm/atkt/searchSiteScnscListByMov?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1441947ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchSscnsScnList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1442170ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchSiteScnscListByMov?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1442199ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cgv.co.kr/api/v1/booking/searchSiteScnscYmdList?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1442226ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cgv.co.kr/api/v1/booking/searchSiteScnscYmdListByMov?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1473296ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cgv.co.kr/api/v1/booking/searchSchByMov?coCd=A420&siteNo=0056&scnYmd=20260723:0
+[ 1510561ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://cgv.co.kr/api/v1/booking/searchSiteScnscYmdListByMov?coCd=A420&movNo=30001192:0
