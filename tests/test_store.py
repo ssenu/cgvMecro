@@ -34,3 +34,16 @@ def test_default_path_falls_back_to_home(monkeypatch):
     monkeypatch.delenv("CGVWATCH_DATA", raising=False)
     from pathlib import Path
     assert default_path() == Path.home() / ".cgv-watcher" / "config.json"
+
+
+def test_load_ignores_legacy_keys(tmp_path):
+    """GUI 시절 config.json(gmail 필드 잔존)을 읽어도 TypeError 없이 로드된다."""
+    path = tmp_path / "config.json"
+    path.write_text(
+        '{"settings": {"gmail_user": "me@gmail.com", "recipient": "me@gmail.com", '
+        '"interval_min": 10}, "watches": []}',
+        encoding="utf-8",
+    )
+    settings, watches = Store(path).load()
+    assert settings.interval_min == 10
+    assert watches == []

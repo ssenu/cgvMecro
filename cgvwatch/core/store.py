@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import asdict
+from dataclasses import asdict, fields
 from pathlib import Path
 
 from .models import Settings, Watch
@@ -23,7 +23,8 @@ class Store:
         if not self.path.exists():
             return Settings(), []
         raw = json.loads(self.path.read_text(encoding="utf-8"))
-        known = {k: v for k, v in raw.get("settings", {}).items() if k in {"interval_min"}}
+        allowed = {f.name for f in fields(Settings)}
+        known = {k: v for k, v in raw.get("settings", {}).items() if k in allowed}
         settings = Settings(**known)
         watches = [Watch(**w) for w in raw.get("watches", [])]
         return settings, watches
