@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CGV 예매 오픈 알리미</title>
+<style>
+  :root {
+    --bg-base: #17130F;
+    --bg-surface: #211B16;
+    --bg-elevated: #2C241D;
+    --line: #3A2F27;
+    --text: #F4EEE4;
+    --text-muted: #A99C8D;
+    --accent: #E23744;
+    --accent-hover: #F04654;
+    --gold: #F5B841;
+
+    --status-waiting-bg: #2E3A44;
+    --status-waiting-fg: #9FB3C4;
+    --status-open-bg: #4A3A16;
+    --status-open-fg: #F5B841;
+    --status-error-bg: #4A2420;
+    --status-error-fg: #F0857C;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-base);
+    color: var(--text);
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .interval-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .interval-value {
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+  }
+
+  .interval-value:hover {
+    border-color: var(--line);
+    background: var(--bg-elevated);
+  }
+
+  .interval-input {
+    width: 70px;
+    background: var(--bg-elevated);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.95rem;
+  }
+
+  #error-banner {
+    display: none;
+    background: var(--status-error-bg);
+    color: var(--status-error-fg);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 24px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #error-banner.visible {
+    display: flex;
+  }
+
+  #error-banner button {
+    background: transparent;
+    border: none;
+    color: var(--status-error-fg);
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  main {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  section {
+    background: var(--bg-surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+
+  section h2 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+
+  table th, table td {
+    text-align: left;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  table th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  table td {
+    color: var(--text);
+  }
+
+  .empty-row td {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 24px 8px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .badge-waiting {
+    background: var(--status-waiting-bg);
+    color: var(--status-waiting-fg);
+  }
+
+  .badge-open {
+    background: var(--status-open-bg);
+    color: var(--status-open-fg);
+    box-shadow: 0 0 8px rgba(245, 184, 65, 0.55);
+  }
+
+  .badge-error {
+    background: var(--status-error-bg);
+    color: var(--status-error-fg);
+  }
+
+  .delete-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text-muted);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+
+  .delete-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent-hover);
+  }
+
+  form#add-watch-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+  }
+
+  .field label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  select, input[type="date"], input[type="number"] {
+    background: var(--bg-elevated);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  button.primary {
+    background: var(--accent);
+    color: var(--text);
+    border: none;
+    border-radius: 4px;
+    padding: 9px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button.primary:hover {
+    background: var(--accent-hover);
+  }
+
+  button.primary:disabled {
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>CGV 예매 오픈 알리미</h1>
+    <div class="interval-box">
+      <span>감시 주기(분):</span>
+      <span id="interval-display" class="interval-value" title="클릭해서 수정">-</span>
+      <input id="interval-input" class="interval-input" type="number" min="1" style="display:none">
+    </div>
+  </header>
+
+  <div id="error-banner">
+    <span id="error-message"></span>
+    <button id="error-close" aria-label="닫기">&times;</button>
+  </div>
+
+  <main>
+    <section>
+      <h2>감시 목록</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>영화</th>
+            <th>극장</th>
+            <th>날짜</th>
+            <th>상태</th>
+            <th>마지막 확인</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="watch-tbody">
+          <tr class="empty-row"><td colspan="6">감시 항목이 없습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>감시 추가</h2>
+      <form id="add-watch-form">
+        <div class="field">
+          <label for="movie-select">영화</label>
+          <select id="movie-select" required></select>
+        </div>
+        <div class="field">
+          <label for="theater-select">극장</label>
+          <select id="theater-select" required></select>
+        </div>
+        <div class="field">
+          <label for="date-input">날짜</label>
+          <input id="date-input" type="date" required>
+        </div>
+        <div class="field">
+          <button type="submit" class="primary" id="add-btn">추가</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+<script>
+(function () {
+  "use strict";
+
+  var STATUS_BADGE = {
+    "대기중": "badge-waiting",
+    "열림": "badge-open",
+    "오류": "badge-error"
+  };
+
+  var errorBanner = document.getElementById("error-banner");
+  var errorMessage = document.getElementById("error-message");
+  var errorClose = document.getElementById("error-close");
+  var watchTbody = document.getElementById("watch-tbody");
+  var movieSelect = document.getElementById("movie-select");
+  var theaterSelect = document.getElementById("theater-select");
+  var dateInput = document.getElementById("date-input");
+  var addForm = document.getElementById("add-watch-form");
+  var addBtn = document.getElementById("add-btn");
+  var intervalDisplay = document.getElementById("interval-display");
+  var intervalInput = document.getElementById("interval-input");
+
+  function showError(msg) {
+    errorMessage.textContent = msg;
+    errorBanner.classList.add("visible");
+  }
+
+  function hideError() {
+    errorBanner.classList.remove("visible");
+  }
+
+  errorClose.addEventListener("click", hideError);
+
+  function todayYmd() {
+    var d = new Date();
+    var mm = String(d.getMonth() + 1).padStart(2, "0");
+    var dd = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + mm + "-" + dd;
+  }
+
+  dateInput.min = todayYmd();
+  dateInput.value = todayYmd();
+
+  function formatDate(ymd) {
+    if (!ymd || ymd.length !== 8) return ymd || "";
+    return ymd.slice(0, 4) + "-" + ymd.slice(4, 6) + "-" + ymd.slice(6, 8);
+  }
+
+  function renderWatches(watches) {
+    watchTbody.innerHTML = "";
+    if (!watches || watches.length === 0) {
+      var tr = document.createElement("tr");
+      tr.className = "empty-row";
+      var td = document.createElement("td");
+      td.colSpan = 6;
+      td.textContent = "감시 항목이 없습니다.";
+      tr.appendChild(td);
+      watchTbody.appendChild(tr);
+      return;
+    }
+
+    watches.forEach(function (w) {
+      var tr = document.createElement("tr");
+
+      var movTd = document.createElement("td");
+      movTd.textContent = w.mov_nm;
+      tr.appendChild(movTd);
+
+      var siteTd = document.createElement("td");
+      siteTd.textContent = w.site_nm;
+      tr.appendChild(siteTd);
+
+      var dateTd = document.createElement("td");
+      dateTd.textContent = formatDate(w.target_ymd);
+      tr.appendChild(dateTd);
+
+      var statusTd = document.createElement("td");
+      var badge = document.createElement("span");
+      badge.className = "badge " + (STATUS_BADGE[w.status] || "badge-waiting");
+      badge.textContent = w.status;
+      statusTd.appendChild(badge);
+      tr.appendChild(statusTd);
+
+      var checkedTd = document.createElement("td");
+      checkedTd.textContent = w.last_checked || "-";
+      tr.appendChild(checkedTd);
+
+      var actionTd = document.createElement("td");
+      var delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "delete-btn";
+      delBtn.textContent = "삭제";
+      delBtn.addEventListener("click", function () {
+        deleteWatch(w.id);
+      });
+      actionTd.appendChild(delBtn);
+      tr.appendChild(actionTd);
+
+      watchTbody.appendChild(tr);
+    });
+  }
+
+  function loadWatches() {
+    fetch("/api/watches")
+      .then(function (res) {
+        if (!res.ok) throw new Error("감시 목록을 불러오지 못했습니다.");
+        return res.json();
+      })
+      .then(function (data) {
+        renderWatches(data);
+      })
+      .catch(function (err) {
+        showError(err.message || "감시 목록을 불러오지 못했습니다.");
+      });
+  }
+
+  function deleteWatch(id) {
+    fetch("/api/watches/" + id, { method: "DELETE" })
+      .then(function (res) {
+        if (!res.ok && res.status !== 204) {
+          throw new Error("삭제에 실패했습니다.");
+        }
+        loadWatches();
+      })
+      .catch(function (err) {
+        showError(err.message || "삭제에 실패했습니다.");
+      });
+  }
+
+  function loadMovies() {
+    fetch("/api/movies")
+      .then(function (res) {
+        if (!res.ok) throw new Error("영화 목록을 불러오지 못했습니다 (CGV API 오류).");
+        return res.json();
+      })
+      .then(function (movies) {
+        movieSelect.innerHTML = "";
+        movies.forEach(function (m) {
+          var opt = document.createElement("option");
+          opt.value = m.mov_no;
+          opt.textContent = m.mov_nm;
+          opt.dataset.movNm = m.mov_nm;
+          movieSelect.appendChild(opt);
+        });
+      })
+      .catch(function (err) {
+        showError(err.message || "영화 목록을 불러오지 못했습니다.");
+      });
+  }
+
+  function loadTheaters() {
+    fetch("/api/theaters")
+      .then(function (res) {
+        if (!res.ok) throw new Error("극장 목록을 불러오지 못했습니다 (CGV API 오류).");
+        return res.json();
+      })
+      .then(function (regions) {
+        theaterSelect.innerHTML = "";
+        regions.forEach(function (region) {
+          var group = document.createElement("optgroup");
+          group.label = region.name;
+          (region.sites || []).forEach(function (site) {
+            var opt = document.createElement("option");
+            opt.value = site.site_no;
+            opt.textContent = site.site_nm;
+            opt.dataset.siteNm = site.site_nm;
+            group.appendChild(opt);
+          });
+          theaterSelect.appendChild(group);
+        });
+      })
+      .catch(function (err) {
+        showError(err.message || "극장 목록을 불러오지 못했습니다.");
+      });
+  }
+
+  function loadSettings() {
+    fetch("/api/settings")
+      .then(function (res) {
+        if (!res.ok) throw new Error("설정을 불러오지 못했습니다.");
+        return res.json();
+      })
+      .then(function (settings) {
+        intervalDisplay.textContent = settings.interval_min;
+      })
+      .catch(function (err) {
+        showError(err.message || "설정을 불러오지 못했습니다.");
+      });
+  }
+
+  function saveInterval() {
+    var value = parseInt(intervalInput.value, 10);
+    if (!value || value < 1) {
+      intervalInput.style.display = "none";
+      intervalDisplay.style.display = "inline";
+      return;
+    }
+    fetch("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ interval_min: value })
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("설정 변경에 실패했습니다.");
+        return res.json();
+      })
+      .then(function (settings) {
+        intervalDisplay.textContent = settings.interval_min;
+      })
+      .catch(function (err) {
+        showError(err.message || "설정 변경에 실패했습니다.");
+      })
+      .finally(function () {
+        intervalInput.style.display = "none";
+        intervalDisplay.style.display = "inline";
+      });
+  }
+
+  intervalDisplay.addEventListener("click", function () {
+    intervalInput.value = intervalDisplay.textContent;
+    intervalDisplay.style.display = "none";
+    intervalInput.style.display = "inline-block";
+    intervalInput.focus();
+    intervalInput.select();
+  });
+
+  intervalInput.addEventListener("blur", saveInterval);
+  intervalInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveInterval();
+    } else if (e.key === "Escape") {
+      intervalInput.style.display = "none";
+      intervalDisplay.style.display = "inline";
+    }
+  });
+
+  addForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var movOpt = movieSelect.options[movieSelect.selectedIndex];
+    var siteOpt = theaterSelect.options[theaterSelect.selectedIndex];
+
+    if (!movOpt || !siteOpt || !dateInput.value) {
+      showError("영화, 극장, 날짜를 모두 선택해 주세요.");
+      return;
+    }
+
+    var ymd = dateInput.value.replace(/-/g, "");
+
+    var payload = {
+      mov_no: movOpt.value,
+      mov_nm: movOpt.dataset.movNm || movOpt.textContent,
+      site_no: siteOpt.value,
+      site_nm: siteOpt.dataset.siteNm || siteOpt.textContent,
+      target_ymd: ymd
+    };
+
+    addBtn.disabled = true;
+    fetch("/api/watches", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("감시 추가에 실패했습니다.");
+        return res.json();
+      })
+      .then(function () {
+        loadWatches();
+      })
+      .catch(function (err) {
+        showError(err.message || "감시 추가에 실패했습니다.");
+      })
+      .finally(function () {
+        addBtn.disabled = false;
+      });
+  });
+
+  loadWatches();
+  loadMovies();
+  loadTheaters();
+  loadSettings();
+
+  setInterval(loadWatches, 5000);
+})();
+</script>
+</body>
+</html>
