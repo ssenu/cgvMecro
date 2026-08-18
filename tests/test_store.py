@@ -21,3 +21,16 @@ def test_load_missing_file_returns_defaults(tmp_path):
     settings, watches = store.load()
     assert settings == Settings()
     assert watches == []
+
+
+def test_default_path_uses_env_var(monkeypatch, tmp_path):
+    from cgvwatch.core.store import default_path
+    monkeypatch.setenv("CGVWATCH_DATA", str(tmp_path))
+    assert default_path() == tmp_path / "config.json"
+
+
+def test_default_path_falls_back_to_home(monkeypatch):
+    from cgvwatch.core.store import default_path
+    monkeypatch.delenv("CGVWATCH_DATA", raising=False)
+    from pathlib import Path
+    assert default_path() == Path.home() / ".cgv-watcher" / "config.json"

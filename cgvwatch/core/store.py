@@ -2,23 +2,29 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict
 from pathlib import Path
 
 from .models import Settings, Watch
 
-DEFAULT_PATH = Path.home() / ".cgv-watcher" / "config.json"
+
+def default_path() -> Path:
+    base = os.environ.get("CGVWATCH_DATA", "").strip()
+    root = Path(base) if base else Path.home() / ".cgv-watcher"
+    return root / "config.json"
 
 
 class Store:
-    def __init__(self, path: Path = DEFAULT_PATH) -> None:
-        self.path = Path(path)
+    def __init__(self, path: Path | None = None) -> None:
+        self.path = Path(path) if path else default_path()
 
     def load(self) -> tuple[Settings, list[Watch]]:
         if not self.path.exists():
             return Settings(), []
         raw = json.loads(self.path.read_text(encoding="utf-8"))
-        settings = Settings(**raw.get("settings", {}))
+        known = {k: v for k, v in raw.get("settings", {}).items() if k in {"interval_min"}}
+        settings = Settings(**known)
         watches = [Watch(**w) for w in raw.get("watches", [])]
         return settings, watches
 
