@@ -25,6 +25,4 @@ class Watch:
 
 @dataclass
 class Settings:
-    gmail_user: str = ""
-    recipient: str = ""
     interval_min: int = 5
