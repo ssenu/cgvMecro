@@ -22,12 +22,13 @@ CGV의 공개 조회 API `searchSiteScnscYmdListByMov(siteNo, movNo)` 는 해당
 
 ## 빠른 시작 (Docker)
 
-Task 8에서 추가되는 `docker-compose.yml`, `.env.example`을 사용합니다.
-
-```
-cp .env.example .env
-# .env 에 DISCORD_WEBHOOK_URL 등을 채운 뒤
+```bash
+# Raspberry Pi에서
+git clone https://github.com/ssenu/cgvMecro.git && cd cgvMecro
+cp .env.example .env && nano .env   # DISCORD_WEBHOOK_URL 기입
 docker compose up -d --build
+# 접속: http://<Pi주소>:8080  /  로그: docker logs -f cgvwatch
+# 업데이트: git pull && docker compose up -d --build
 ```
 
 브라우저에서 `http://<raspberry-pi-주소>:8080` 으로 접속하면 웹 UI가 열립니다.

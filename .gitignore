@@ -5,6 +5,10 @@ config.json
 
 .playwright-mcp/
 
+# Docker
+.env
+data/
+
 # PyInstaller 빌드 산출물
 build/
 dist/
