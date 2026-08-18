@@ -511,11 +511,16 @@
       });
   }
 
+  var savingInterval = false;
+
   function saveInterval() {
+    if (savingInterval) return;
+    savingInterval = true;
     var value = parseInt(intervalInput.value, 10);
     if (!value || value < 1) {
       intervalInput.style.display = "none";
       intervalDisplay.style.display = "inline";
+      savingInterval = false;
       return;
     }
     fetch("/api/settings", {
@@ -536,6 +541,7 @@
       .finally(function () {
         intervalInput.style.display = "none";
         intervalDisplay.style.display = "inline";
+        savingInterval = false;
       });
   }
 
