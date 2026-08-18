@@ -1,62 +1,68 @@
 # CGV 예매 오픈 알리미
 
-지정한 (상영관·날짜·영화)의 CGV 예매가 열리면 이메일로 알려주는 Windows 데스크톱 앱.
+지정한 (상영관·날짜·영화)의 CGV 예매가 열리면 즉시 알려주는 웹 앱. Raspberry Pi 등 상시
+켜져 있는 서버에 Docker로 올려두고, 브라우저로 감시 목록을 관리합니다.
 
 - 예매 오픈을 **알림**만 하는 도구입니다. 자동 예매/결제 기능은 없습니다.
 - CGV 공개 조회 API(`cgv.co.kr/api/v1/booking/*`)를 예의 있게(기본 5분 간격) 사용합니다.
-
-## 설치
-
-```
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-## 실행
-
-```
-python -m cgvwatch.app
-```
-
-## 사용법
-
-1. 상단 **[설정] 메뉴 → 메일 설정 열기** (또는 툴바의 **[설정]** 버튼)에서 Gmail 주소,
-   앱 비밀번호(2단계 인증 후 발급), 수신 메일, 확인 간격을 입력합니다.
-   - 앱 비밀번호는 Windows 자격 증명 관리자(`keyring`)에 저장되며 설정 파일에 평문으로 남지 않습니다.
-   - **[테스트 메일 보내기]** 버튼으로 입력한 설정이 실제로 발송되는지 바로 확인할 수 있습니다.
-2. **[추가]** 로 지역 → 상영관, 영화, 날짜를 선택합니다.
-3. 창을 켜두면 설정한 간격마다 자동으로 확인하고, 해당 날짜의 예매가 열리면 메일을 보냅니다.
-   - 팁: Windows 작업 스케줄러에 등록하면 부팅 시 자동 실행됩니다.
+- 백그라운드 감시 스레드가 등록된 (상영관·영화·날짜) 조합을 주기적으로 확인하고,
+  예매 가능 날짜 목록에 감시 대상 날짜가 처음 나타나는 순간 "예매 오픈"으로 판단해
+  Discord 웹훅으로 알립니다.
 
 ## 동작 원리
 
 CGV의 공개 조회 API `searchSiteScnscYmdListByMov(siteNo, movNo)` 는 해당 영화가 그
 상영관에서 **예매 가능한 날짜 목록**을 반환합니다. 이 목록에 감시 대상 날짜가
-처음 나타나는 순간을 "예매 오픈"으로 감지해 알림을 보냅니다.
+처음 나타나는 순간을 "예매 오픈"으로 감지해 Discord 채널로 알림을 보냅니다.
 
-## 실행파일(.exe) 빌드
+## 요구사항
 
-Python 설치 없이 더블클릭으로 실행되는 단일 `.exe`를 만들 수 있습니다.
+- Docker / Docker Compose
+- 알림을 받을 Discord 웹훅 URL
+
+## 빠른 시작 (Docker)
+
+Task 8에서 추가되는 `docker-compose.yml`, `.env.example`을 사용합니다.
+
+```
+cp .env.example .env
+# .env 에 DISCORD_WEBHOOK_URL 등을 채운 뒤
+docker compose up -d --build
+```
+
+브라우저에서 `http://<raspberry-pi-주소>:8080` 으로 접속하면 웹 UI가 열립니다.
+감시 목록·상영관·영화 검색, 추가/삭제가 모두 웹 화면에서 이루어집니다.
+
+## 개발자용 로컬 실행
 
 ```
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements-dev.txt
-pyinstaller cgv_notifier.spec
+pip install -r requirements.txt -r requirements-dev.txt
+python run.py
 ```
 
-- 결과물: `dist\CGV예매알리미.exe` (단일 파일, 콘솔창 없음)
-- 이 exe 하나만 복사해 배포/실행하면 됩니다. 설정·감시목록은 실행 시
-  `%USERPROFILE%\.cgv-watcher\`에, 앱 비밀번호는 Windows 자격 증명 관리자에 저장됩니다.
+기본적으로 `http://0.0.0.0:8080` 에서 서버가 뜹니다.
 
-## 테스트
+### 테스트
 
 ```
-python -m pytest -v
+python -m pytest tests/
 ```
 
-## 설정/데이터 위치
+## 환경 변수
 
-- 설정·감시목록: `%USERPROFILE%\.cgv-watcher\config.json`
-- Gmail 앱 비밀번호: Windows 자격 증명 관리자 (서비스명 `cgv-watcher`)
+| 변수 | 설명 | 기본값 |
+| --- | --- | --- |
+| `DISCORD_WEBHOOK_URL` | 예매 오픈 알림을 보낼 Discord 웹훅 URL. 미설정 시 알림 전송을 시도하면 오류가 발생합니다. | (없음, 필수) |
+| `CGVWATCH_DATA` | 설정·감시목록을 저장할 디렉터리 (`config.json` 위치). | 사용자 홈 디렉터리 |
+| `PORT` | 웹 서버가 바인딩할 포트. | `8080` |
+| `TZ` | 컨테이너/프로세스의 타임존 (예매 오픈 판단·표시 시각에 영향). | 시스템 기본값 |
+
+## API
+
+- `GET /healthz` — 헬스체크
+- `GET/POST/DELETE /api/watches` — 감시 목록 조회/추가/삭제
+- `GET/PUT /api/settings` — 설정 조회/변경
+- `GET /api/movies`, `GET /api/theaters` — CGV 상영관/영화 목록 조회
+- `GET /` — 웹 UI
