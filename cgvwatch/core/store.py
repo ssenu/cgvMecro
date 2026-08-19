@@ -23,8 +23,12 @@ class Store:
         if not self.path.exists():
             return Settings(), []
         raw = json.loads(self.path.read_text(encoding="utf-8"))
+        raw_settings = dict(raw.get("settings", {}))
+        # 분 단위(interval_min)를 쓰던 구버전 설정을 초 단위로 변환한다.
+        if "interval_sec" not in raw_settings and "interval_min" in raw_settings:
+            raw_settings["interval_sec"] = int(raw_settings["interval_min"]) * 60
         allowed = {f.name for f in fields(Settings)}
-        known = {k: v for k, v in raw.get("settings", {}).items() if k in allowed}
+        known = {k: v for k, v in raw_settings.items() if k in allowed}
         settings = Settings(**known)
         watches = [Watch(**w) for w in raw.get("watches", [])]
         return settings, watches

@@ -26,4 +26,4 @@ class Watch:
 
 @dataclass
 class Settings:
-    interval_min: int = 5
+    interval_sec: int = 300

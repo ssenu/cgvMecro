@@ -99,5 +99,5 @@ class WatcherThread(threading.Thread):
         while not self._stop.is_set():
             settings, watches, set_watch = self._get_state()
             self._run_once(settings, watches, set_watch)
-            self._stop.wait(max(1, settings.interval_min) * 60)
+            self._stop.wait(max(5, settings.interval_sec))
         logger.info("감시 스레드 종료")

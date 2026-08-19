@@ -277,9 +277,9 @@
   <header>
     <h1>CGV 예매 오픈 알리미</h1>
     <div class="interval-box">
-      <span>감시 주기(분):</span>
+      <span>감시 주기(초):</span>
       <span id="interval-display" class="interval-value" title="클릭해서 수정">-</span>
-      <input id="interval-input" class="interval-input" type="number" min="1" style="display:none">
+      <input id="interval-input" class="interval-input" type="number" min="5" style="display:none">
     </div>
   </header>
 
@@ -520,7 +520,7 @@
         return res.json();
       })
       .then(function (settings) {
-        intervalDisplay.textContent = settings.interval_min;
+        intervalDisplay.textContent = settings.interval_sec;
       })
       .catch(function (err) {
         showError(err.message || "설정을 불러오지 못했습니다.");
@@ -533,7 +533,7 @@
     if (savingInterval) return;
     savingInterval = true;
     var value = parseInt(intervalInput.value, 10);
-    if (!value || value < 1) {
+    if (!value || value < 5) {
       intervalInput.style.display = "none";
       intervalDisplay.style.display = "inline";
       savingInterval = false;
@@ -542,14 +542,14 @@
     fetch("/api/settings", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ interval_min: value })
+      body: JSON.stringify({ interval_sec: value })
     })
       .then(function (res) {
         if (!res.ok) throw new Error("설정 변경에 실패했습니다.");
         return res.json();
       })
       .then(function (settings) {
-        intervalDisplay.textContent = settings.interval_min;
+        intervalDisplay.textContent = settings.interval_sec;
       })
       .catch(function (err) {
         showError(err.message || "설정 변경에 실패했습니다.");

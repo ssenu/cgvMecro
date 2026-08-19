@@ -66,7 +66,7 @@ def test_thread_run_once_survives_check_exception(monkeypatch):
     monkeypatch.setattr(w, "check_watch", MagicMock(side_effect=RuntimeError("불의의 오류")))
 
     def get_state():
-        return Settings(interval_min=1), [_watch()], lambda updated: None
+        return Settings(interval_sec=60), [_watch()], lambda updated: None
 
     thread = w.WatcherThread(MagicMock(), get_state)
     thread._run_once(*get_state())  # 예외 없이 반환되면 통과

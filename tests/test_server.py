@@ -49,10 +49,10 @@ def test_delete_unknown_watch_404(api):
 
 def test_settings_roundtrip(api):
     tc, store, _ = api
-    assert tc.get("/api/settings").json() == {"interval_min": 5}
-    assert tc.put("/api/settings", json={"interval_min": 10}).json() == {"interval_min": 10}
+    assert tc.get("/api/settings").json() == {"interval_sec": 300}
+    assert tc.put("/api/settings", json={"interval_sec": 30}).json() == {"interval_sec": 30}
     settings, _ = store.load()
-    assert settings.interval_min == 10
+    assert settings.interval_sec == 30
 
 
 def test_movies_proxies_cgv(api, monkeypatch):

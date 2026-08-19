@@ -5,7 +5,7 @@ from cgvwatch.core.store import Store
 def test_save_then_load_roundtrip(tmp_path):
     path = tmp_path / "config.json"
     store = Store(path)
-    settings = Settings(interval_min=10)
+    settings = Settings(interval_sec=90)
     watches = [Watch(id="1", mov_no="30001192", mov_nm="스파이더맨", site_no="0056",
                      site_nm="강남", target_ymd="20260729", was_open=True, status=Status.OPEN)]
 
@@ -45,5 +45,5 @@ def test_load_ignores_legacy_keys(tmp_path):
         encoding="utf-8",
     )
     settings, watches = Store(path).load()
-    assert settings.interval_min == 10
+    assert settings.interval_sec == 600  # 분 단위 구버전 → 초로 변환
     assert watches == []

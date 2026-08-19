@@ -34,7 +34,7 @@ class WatchIn(BaseModel):
 
 
 class SettingsIn(BaseModel):
-    interval_min: int = Field(ge=1, le=1440)
+    interval_sec: int = Field(ge=5, le=86400)
 
 
 class AppState:
@@ -68,9 +68,9 @@ class AppState:
             self.store.save(self.settings, self.watches)
             return True
 
-    def update_settings(self, interval_min: int) -> Settings:
+    def update_settings(self, interval_sec: int) -> Settings:
         with self.lock:
-            self.settings = Settings(interval_min=interval_min)
+            self.settings = Settings(interval_sec=interval_sec)
             self.store.save(self.settings, self.watches)
             return self.settings
 
@@ -128,7 +128,7 @@ def create_app(
 
     @app.put("/api/settings")
     def put_settings(body: SettingsIn):
-        return asdict(state.update_settings(body.interval_min))
+        return asdict(state.update_settings(body.interval_sec))
 
     @app.get("/api/movies")
     def movies():
