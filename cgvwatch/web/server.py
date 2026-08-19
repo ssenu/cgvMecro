@@ -19,6 +19,7 @@ from cgvwatch.cgv.theaters import get_regions
 from cgvwatch.core.models import Settings, Watch
 from cgvwatch.core.store import Store
 from cgvwatch.core.watcher import WatcherThread
+from cgvwatch.notify.discord import send_created_alert
 
 logger = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).parent / "static"
@@ -108,6 +109,11 @@ def create_app(
     def add_watch(body: WatchIn):
         watch = Watch(id=uuid.uuid4().hex[:8], **body.model_dump())
         state.add_watch(watch)
+        try:
+            send_created_alert(watch, state.settings)
+        except Exception:
+            # 등록 알림 실패(웹훅 미설정 등)가 등록 자체를 막으면 안 된다.
+            logger.exception("등록 알림 발송 실패: %s", watch.mov_nm)
         return asdict(watch)
 
     @app.delete("/api/watches/{watch_id}", status_code=204)

@@ -78,3 +78,31 @@ def test_cgv_error_returns_502(api, monkeypatch):
         raise CGVError("down")
     monkeypatch.setattr(srv, "get_movies", boom)
     assert tc.get("/api/movies").status_code == 502
+
+def test_add_watch_sends_created_alert(api, monkeypatch):
+    tc, _, _ = api
+    import cgvwatch.web.server as srv
+    sent = MagicMock()
+    monkeypatch.setattr(srv, "send_created_alert", sent)
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0056",
+            "site_nm": "강남", "target_ymd": "20260729"}
+
+    assert tc.post("/api/watches", json=body).status_code == 201
+
+    sent.assert_called_once()
+    assert sent.call_args[0][0].mov_nm == "영화"
+
+
+def test_add_watch_succeeds_even_if_alert_fails(api, monkeypatch):
+    """웹훅 미설정 등으로 등록 알림이 실패해도 등록 자체는 성공해야 한다."""
+    tc, _, _ = api
+    import cgvwatch.web.server as srv
+    monkeypatch.setattr(srv, "send_created_alert",
+                        MagicMock(side_effect=RuntimeError("웹훅 미설정")))
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0056",
+            "site_nm": "강남", "target_ymd": "20260729"}
+
+    res = tc.post("/api/watches", json=body)
+
+    assert res.status_code == 201
+    assert len(tc.get("/api/watches").json()) == 1

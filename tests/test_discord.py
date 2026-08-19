@@ -44,3 +44,27 @@ def test_send_open_alert_raises_on_http_error(monkeypatch):
     post = MagicMock(return_value=resp)
     with pytest.raises(RuntimeError):
         discord.send_open_alert(_watch(), Settings(), post=post)
+
+def test_build_created_message_contains_key_fields():
+    msg = discord.build_created_message(_watch())
+    assert "스파이더맨-브랜드 뉴 데이" in msg
+    assert "강남" in msg
+    assert "07/25" in msg
+    assert "등록" in msg
+
+
+def test_send_created_alert_posts_to_webhook(monkeypatch):
+    monkeypatch.setenv("DISCORD_WEBHOOK_URL", "https://discord.test/hook")
+    resp = MagicMock(status_code=204)
+    post = MagicMock(return_value=resp)
+
+    discord.send_created_alert(_watch(), Settings(), post=post)
+
+    payload = post.call_args[1]["json"]
+    assert "등록" in payload["content"]
+
+
+def test_send_created_alert_raises_without_webhook_url(monkeypatch):
+    monkeypatch.delenv("DISCORD_WEBHOOK_URL", raising=False)
+    with pytest.raises(RuntimeError):
+        discord.send_created_alert(_watch(), Settings(), post=MagicMock())
