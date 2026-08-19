@@ -94,3 +94,51 @@ def test_check_watch_error_logs_cause(monkeypatch, caplog):
     assert result.status == Status.ERROR
     assert "connection refused" in caplog.text
     assert "스파이더맨" in caplog.text
+
+
+def test_check_watch_records_and_clears_last_error(monkeypatch):
+    import cgvwatch.core.watcher as w
+
+    def boom(c, s, m):
+        raise RuntimeError("HTTP 403")
+    monkeypatch.setattr(w, "get_open_dates", boom)
+    failed = check_watch(MagicMock(), _watch(), Settings(), notify=MagicMock(),
+                         notify_error=MagicMock())
+    assert failed.status == Status.ERROR
+    assert "HTTP 403" in failed.last_error
+
+    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: set())
+    recovered = check_watch(MagicMock(), failed, Settings(), notify=MagicMock(),
+                            notify_error=MagicMock())
+    assert recovered.status == Status.WAITING
+    assert recovered.last_error == ""
+
+
+def test_check_watch_sends_error_alert_only_on_transition(monkeypatch):
+    """정상→오류 전환 때만 디스코드 경고 1회, 오류 지속 중엔 반복 발송 없음."""
+    import cgvwatch.core.watcher as w
+
+    def boom(c, s, m):
+        raise RuntimeError("HTTP 403")
+    monkeypatch.setattr(w, "get_open_dates", boom)
+    alert = MagicMock()
+
+    first = check_watch(MagicMock(), _watch(), Settings(), notify=MagicMock(),
+                        notify_error=alert)
+    alert.assert_called_once()
+
+    check_watch(MagicMock(), first, Settings(), notify=MagicMock(), notify_error=alert)
+    alert.assert_called_once()  # 여전히 1회
+
+
+def test_check_watch_error_alert_failure_is_swallowed(monkeypatch):
+    """오류 경고 발송 자체가 실패해도(디코 장애 등) 감시는 계속된다."""
+    import cgvwatch.core.watcher as w
+
+    def boom(c, s, m):
+        raise RuntimeError("HTTP 403")
+    monkeypatch.setattr(w, "get_open_dates", boom)
+
+    result = check_watch(MagicMock(), _watch(), Settings(), notify=MagicMock(),
+                         notify_error=MagicMock(side_effect=RuntimeError("디코 장애")))
+    assert result.status == Status.ERROR

@@ -68,3 +68,16 @@ def test_send_created_alert_raises_without_webhook_url(monkeypatch):
     monkeypatch.delenv("DISCORD_WEBHOOK_URL", raising=False)
     with pytest.raises(RuntimeError):
         discord.send_created_alert(_watch(), Settings(), post=MagicMock())
+
+
+def test_send_error_alert_posts_reason(monkeypatch):
+    monkeypatch.setenv("DISCORD_WEBHOOK_URL", "https://discord.test/hook")
+    resp = MagicMock(status_code=204)
+    post = MagicMock(return_value=resp)
+
+    discord.send_error_alert(_watch(), Settings(), "CGV 조회 실패: HTTP 403", post=post)
+
+    payload = post.call_args[1]["json"]
+    assert "오류" in payload["content"]
+    assert "HTTP 403" in payload["content"]
+    assert "강남" in payload["content"]

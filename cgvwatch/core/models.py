@@ -21,6 +21,7 @@ class Watch:
     status: str = Status.WAITING
     was_open: bool = False
     last_checked: str = ""
+    last_error: str = ""  # 오류 상태일 때의 실패 원인 (정상 복귀 시 빈 문자열)
 
 
 @dataclass

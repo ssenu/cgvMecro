@@ -193,6 +193,15 @@
     color: var(--status-error-fg);
   }
 
+  .error-reason {
+    margin-top: 4px;
+    font-size: 0.74rem;
+    color: var(--status-error-fg);
+    opacity: 0.85;
+    max-width: 260px;
+    word-break: break-all;
+  }
+
   .delete-btn {
     background: transparent;
     border: 1px solid var(--line);
@@ -402,6 +411,13 @@
       badge.className = "badge " + (STATUS_BADGE[w.status] || "badge-waiting");
       badge.textContent = w.status;
       statusTd.appendChild(badge);
+      if (w.last_error) {
+        badge.title = w.last_error;
+        var reason = document.createElement("div");
+        reason.className = "error-reason";
+        reason.textContent = w.last_error;
+        statusTd.appendChild(reason);
+      }
       tr.appendChild(statusTd);
 
       var checkedTd = document.createElement("td");

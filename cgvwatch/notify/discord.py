@@ -47,6 +47,24 @@ def send_open_alert(
     _send(build_message(watch), post)
 
 
+def send_error_alert(
+    watch: Watch,
+    settings: Settings,
+    reason: str,
+    post: Callable = requests.post,
+) -> None:
+    """감시가 정상 작동하다 오류로 멈췄을 때의 경고. 실패 시 예외(호출부에서 무시)."""
+    ymd = watch.target_ymd
+    date = f"{ymd[4:6]}/{ymd[6:8]}"
+    content = (
+        f"⚠️ **{watch.mov_nm}**\n"
+        f"{watch.site_nm} {date} 감시가 오류로 멈췄습니다.\n"
+        f"원인: {reason}\n"
+        f"자동으로 재시도하며, 복구되면 감시가 계속됩니다."
+    )
+    _send(content, post)
+
+
 def send_created_alert(
     watch: Watch,
     settings: Settings,

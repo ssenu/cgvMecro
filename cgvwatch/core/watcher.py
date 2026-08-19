@@ -10,9 +10,26 @@ from typing import Callable, Optional
 from cgvwatch.cgv.showtimes import get_open_dates
 from cgvwatch.core.detect import evaluate
 from cgvwatch.core.models import Settings, Status, Watch
-from cgvwatch.notify.discord import send_open_alert
+from cgvwatch.notify.discord import send_error_alert, send_open_alert
 
 logger = logging.getLogger(__name__)
+
+
+def _to_error(
+    watch: Watch,
+    settings: Settings,
+    reason: str,
+    now: str,
+    notify_error: Callable,
+) -> Watch:
+    """오류 상태로 전이. 정상→오류 '전환'일 때만 디스코드 경고를 1회 시도한다."""
+    if watch.status != Status.ERROR:
+        try:
+            notify_error(watch, settings, reason)
+        except Exception:
+            # 경고 발송 실패(디코 장애 등)가 감시를 막으면 안 된다.
+            logger.exception("오류 경고 발송 실패: %s", watch.mov_nm)
+    return replace(watch, status=Status.ERROR, last_checked=now, last_error=reason)
 
 
 def check_watch(
@@ -20,6 +37,7 @@ def check_watch(
     watch: Watch,
     settings: Settings,
     notify: Callable = send_open_alert,
+    notify_error: Callable = send_error_alert,
     now: Optional[str] = None,
 ) -> Watch:
     now = now or datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -27,21 +45,21 @@ def check_watch(
         open_dates = get_open_dates(client, watch.site_no, watch.mov_no)
     except Exception as exc:
         logger.warning("CGV 조회 실패: %s %s → %s", watch.mov_nm, watch.site_nm, exc)
-        return replace(watch, status=Status.ERROR, last_checked=now)
+        return _to_error(watch, settings, f"CGV 조회 실패: {exc}", now, notify_error)
 
     if evaluate(watch, open_dates):
         try:
             notify(watch, settings)
-        except Exception:
+        except Exception as exc:
             # 열렸지만 알림 실패(웹훅 미설정 등) → 앱을 죽이지 않는다.
             # was_open을 True로 올리지 않아 다음 주기에 재시도한다.
             logger.exception("알림 발송 실패: %s", watch.mov_nm)
-            return replace(watch, status=Status.ERROR, last_checked=now)
+            return _to_error(watch, settings, f"알림 발송 실패: {exc}", now, notify_error)
         logger.info("예매 오픈 감지·알림 발송: %s %s %s", watch.mov_nm, watch.site_nm, watch.target_ymd)
-        return replace(watch, was_open=True, status=Status.OPEN, last_checked=now)
+        return replace(watch, was_open=True, status=Status.OPEN, last_checked=now, last_error="")
 
     status = Status.OPEN if watch.was_open else Status.WAITING
-    return replace(watch, status=status, last_checked=now)
+    return replace(watch, status=status, last_checked=now, last_error="")
 
 
 class WatcherThread(threading.Thread):
