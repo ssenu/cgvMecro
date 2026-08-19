@@ -39,3 +39,10 @@ def test_get_json_raises_on_http_error():
     client = CGVClient(session=session)
     with pytest.raises(CGVError):
         client.get_json("searchRegnList", {})
+
+
+def test_client_sends_browser_like_headers():
+    """CGV가 Referer 없는 요청을 403으로 차단하므로 세션 기본 헤더에 포함해야 한다."""
+    client = CGVClient()
+    assert client.session.headers.get("Referer") == "https://cgv.co.kr/"
+    assert client.session.headers.get("Origin") == "https://cgv.co.kr"

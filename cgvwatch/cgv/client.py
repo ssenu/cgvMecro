@@ -29,7 +29,15 @@ class CGVClient:
         self.co_cd = co_cd
         self.timeout = timeout
         self.session = session or requests.Session()
-        self.session.headers.update({"User-Agent": USER_AGENT, "Accept": "application/json"})
+        # Referer 없는 요청은 CGV가 403으로 차단한다 (searchSiteScnscYmdListByMov 등).
+        self.session.headers.update(
+            {
+                "User-Agent": USER_AGENT,
+                "Accept": "application/json",
+                "Referer": "https://cgv.co.kr/",
+                "Origin": "https://cgv.co.kr",
+            }
+        )
 
     def get_json(self, endpoint: str, params: dict) -> Any:
         merged = {"coCd": self.co_cd, **params}
