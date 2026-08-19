@@ -77,3 +77,20 @@ def test_thread_stop_interrupts_wait():
     thread = w.WatcherThread(MagicMock(), lambda: (Settings(), [], lambda u: None))
     thread.stop()
     assert thread._stop.is_set()
+
+
+def test_check_watch_error_logs_cause(monkeypatch, caplog):
+    """CGV 조회 실패가 조용히 삼켜지지 않고 원인이 로그에 남아야 한다."""
+    import logging
+    import cgvwatch.core.watcher as w
+
+    def boom(c, s, m):
+        raise RuntimeError("connection refused")
+    monkeypatch.setattr(w, "get_open_dates", boom)
+
+    with caplog.at_level(logging.WARNING):
+        result = check_watch(MagicMock(), _watch(), Settings(), notify=MagicMock())
+
+    assert result.status == Status.ERROR
+    assert "connection refused" in caplog.text
+    assert "스파이더맨" in caplog.text

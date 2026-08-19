@@ -25,7 +25,8 @@ def check_watch(
     now = now or datetime.now().strftime("%Y-%m-%d %H:%M")
     try:
         open_dates = get_open_dates(client, watch.site_no, watch.mov_no)
-    except Exception:
+    except Exception as exc:
+        logger.warning("CGV 조회 실패: %s %s → %s", watch.mov_nm, watch.site_nm, exc)
         return replace(watch, status=Status.ERROR, last_checked=now)
 
     if evaluate(watch, open_dates):
