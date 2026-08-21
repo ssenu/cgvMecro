@@ -47,3 +47,17 @@ def test_load_ignores_legacy_keys(tmp_path):
     settings, watches = Store(path).load()
     assert settings.interval_sec == 600  # 분 단위 구버전 → 초로 변환
     assert watches == []
+
+
+def test_load_ignores_unknown_watch_keys(tmp_path):
+    """다른 버전이 저장한 config의 낯선 watch 키(time_from 등)에도 로드가 죽으면 안 된다."""
+    path = tmp_path / "config.json"
+    path.write_text(
+        '{"settings": {"interval_sec": 60}, "watches": [{'
+        '"id": "1", "mov_no": "30001192", "mov_nm": "스파이더맨", "site_no": "0056", '
+        '"site_nm": "강남", "target_ymd": "20260729", "time_from": "1700", "time_to": "2200"}]}',
+        encoding="utf-8",
+    )
+    settings, watches = Store(path).load()
+    assert watches[0].mov_nm == "스파이더맨"
+    assert settings.interval_sec == 60

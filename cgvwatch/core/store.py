@@ -30,7 +30,12 @@ class Store:
         allowed = {f.name for f in fields(Settings)}
         known = {k: v for k, v in raw_settings.items() if k in allowed}
         settings = Settings(**known)
-        watches = [Watch(**w) for w in raw.get("watches", [])]
+        # 다른 버전이 남긴 낯선 watch 키(time_from 등)는 무시하고 로드한다.
+        watch_fields = {f.name for f in fields(Watch)}
+        watches = [
+            Watch(**{k: v for k, v in w.items() if k in watch_fields})
+            for w in raw.get("watches", [])
+        ]
         return settings, watches
 
     def save(self, settings: Settings, watches: list[Watch]) -> None:
