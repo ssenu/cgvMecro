@@ -7,8 +7,8 @@ from dataclasses import replace
 from datetime import datetime
 from typing import Callable, Optional
 
-from cgvwatch.cgv.showtimes import get_open_dates
-from cgvwatch.core.detect import evaluate
+from cgvwatch.cgv.showtimes import get_open_dates, get_showtimes
+from cgvwatch.core.detect import evaluate, has_screen
 from cgvwatch.core.models import Settings, Status, Watch
 from cgvwatch.notify.discord import send_error_alert, send_open_alert
 
@@ -48,6 +48,16 @@ def check_watch(
         return _to_error(watch, settings, f"CGV 조회 실패: {exc}", now, notify_error)
 
     if evaluate(watch, open_dates):
+        if watch.screen_filter:
+            try:
+                showtimes = get_showtimes(client, watch.site_no, watch.mov_no, watch.target_ymd)
+            except Exception as exc:
+                # 관 조건을 판정할 수 없으면 오류로 표시하고 다음 주기 재시도.
+                logger.warning("회차 조회 실패: %s %s → %s", watch.mov_nm, watch.site_nm, exc)
+                return _to_error(watch, settings, f"회차 조회 실패: {exc}", now, notify_error)
+            if not has_screen(showtimes, watch.screen_filter):
+                # 날짜는 열렸지만 원하는 관 회차가 아직 없다 → 계속 대기.
+                return replace(watch, status=Status.WAITING, last_checked=now, last_error="")
         try:
             notify(watch, settings)
         except Exception as exc:

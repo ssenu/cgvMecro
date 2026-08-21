@@ -193,6 +193,13 @@
     color: var(--status-error-fg);
   }
 
+  .screen-filter {
+    margin-top: 4px;
+    font-size: 0.74rem;
+    color: var(--gold);
+    opacity: 0.85;
+  }
+
   .error-reason {
     margin-top: 4px;
     font-size: 0.74rem;
@@ -236,7 +243,7 @@
     color: var(--text-muted);
   }
 
-  select, input[type="date"], input[type="number"] {
+  select, input[type="date"], input[type="number"], input[type="text"] {
     background: var(--bg-elevated);
     color: var(--text);
     border: 1px solid var(--line);
@@ -324,6 +331,20 @@
           <input id="date-input" type="date" required>
         </div>
         <div class="field">
+          <label for="screen-input">관 필터 (선택)</label>
+          <input id="screen-input" type="text" list="screen-options"
+                 placeholder="예: IMAX" maxlength="30"
+                 title="관 이름에 이 키워드가 포함된 회차가 열릴 때만 알림">
+          <datalist id="screen-options">
+            <option value="IMAX"></option>
+            <option value="SCREENX"></option>
+            <option value="4DX"></option>
+            <option value="DOLBY"></option>
+            <option value="리클라이너"></option>
+            <option value="GOLD CLASS"></option>
+          </datalist>
+        </div>
+        <div class="field">
           <button type="submit" class="primary" id="add-btn">추가</button>
         </div>
       </form>
@@ -347,6 +368,7 @@
   var movieSelect = document.getElementById("movie-select");
   var theaterSelect = document.getElementById("theater-select");
   var dateInput = document.getElementById("date-input");
+  var screenInput = document.getElementById("screen-input");
   var addForm = document.getElementById("add-watch-form");
   var addBtn = document.getElementById("add-btn");
   var intervalDisplay = document.getElementById("interval-display");
@@ -400,6 +422,12 @@
 
       var siteTd = document.createElement("td");
       siteTd.textContent = w.site_nm;
+      if (w.screen_filter) {
+        var scr = document.createElement("div");
+        scr.className = "screen-filter";
+        scr.textContent = w.screen_filter + " 관만";
+        siteTd.appendChild(scr);
+      }
       tr.appendChild(siteTd);
 
       var dateTd = document.createElement("td");
@@ -598,7 +626,8 @@
       mov_nm: movOpt.dataset.movNm || movOpt.textContent,
       site_no: siteOpt.value,
       site_nm: siteOpt.dataset.siteNm || siteOpt.textContent,
-      target_ymd: ymd
+      target_ymd: ymd,
+      screen_filter: screenInput.value.trim()
     };
 
     addBtn.disabled = true;

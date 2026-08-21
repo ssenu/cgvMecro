@@ -106,3 +106,17 @@ def test_add_watch_succeeds_even_if_alert_fails(api, monkeypatch):
 
     assert res.status_code == 201
     assert len(tc.get("/api/watches").json()) == 1
+
+def test_add_watch_with_screen_filter(api, monkeypatch):
+    tc, store, _ = api
+    import cgvwatch.web.server as srv
+    monkeypatch.setattr(srv, "send_created_alert", MagicMock())
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산아이파크몰",
+            "target_ymd": "20260729", "screen_filter": "IMAX"}
+
+    res = tc.post("/api/watches", json=body)
+
+    assert res.status_code == 201
+    assert res.json()["screen_filter"] == "IMAX"
+    _, saved = store.load()
+    assert saved[0].screen_filter == "IMAX"

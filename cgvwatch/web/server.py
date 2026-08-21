@@ -31,6 +31,7 @@ class WatchIn(BaseModel):
     site_no: str
     site_nm: str
     target_ymd: str = Field(pattern=r"^\d{8}$")
+    screen_filter: str = Field(default="", max_length=30)
 
 
 class SettingsIn(BaseModel):

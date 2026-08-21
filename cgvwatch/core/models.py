@@ -18,6 +18,7 @@ class Watch:
     site_no: str
     site_nm: str
     target_ymd: str  # YYYYMMDD
+    screen_filter: str = ""  # 관 이름 키워드 (예: IMAX). 빈 값이면 아무 관이나 열리면 알림
     status: str = Status.WAITING
     was_open: bool = False
     last_checked: str = ""

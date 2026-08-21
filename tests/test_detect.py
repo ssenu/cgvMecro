@@ -26,3 +26,16 @@ def test_evaluate_false_when_already_open_no_duplicate():
 
 def test_default_status_is_waiting():
     assert _watch().status == Status.WAITING
+
+
+def test_has_screen_matches_substring_case_insensitive():
+    from cgvwatch.core.detect import has_screen
+    rows = [{"screen": "1관 (Laser)"}, {"screen": "IMAX관"}]
+    assert has_screen(rows, "imax") is True
+    assert has_screen(rows, "4DX") is False
+
+
+def test_has_screen_empty_keyword_is_always_true():
+    from cgvwatch.core.detect import has_screen
+    assert has_screen([], "") is True
+    assert has_screen([{"screen": "1관"}], "") is True

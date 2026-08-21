@@ -91,3 +91,10 @@ def test_build_message_contains_booking_deep_link():
     assert "scnYmd=20260725" in msg
     assert "siteNo=0056" in msg
     assert "siteNm=%EA%B0%95%EB%82%A8" in msg  # '강남' URL 인코딩
+
+
+def test_build_message_mentions_screen_filter():
+    w = Watch(id="1", mov_no="30001192", mov_nm="스파이더맨", site_no="0013",
+              site_nm="용산아이파크몰", target_ymd="20260725", screen_filter="IMAX")
+    msg = discord.build_message(w)
+    assert "IMAX" in msg

@@ -24,9 +24,10 @@ def booking_url(watch: Watch) -> str:
 def build_message(watch: Watch) -> str:
     ymd = watch.target_ymd
     date = f"{ymd[4:6]}/{ymd[6:8]}"
+    screen = f" {watch.screen_filter}" if watch.screen_filter else ""
     return (
         f"🎬 **{watch.mov_nm}**\n"
-        f"{watch.site_nm} {date} 예매가 열렸습니다!\n"
+        f"{watch.site_nm} {date}{screen} 예매가 열렸습니다!\n"
         f"👉 바로 예매하기 (시간대만 고르면 좌석 선택으로 넘어갑니다)\n"
         f"{booking_url(watch)}"
     )

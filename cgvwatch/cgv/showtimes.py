@@ -9,3 +9,21 @@ def get_open_dates(client: CGVClient, site_no: str, mov_no: str) -> set[str]:
         "searchSiteScnscYmdListByMov", {"siteNo": site_no, "movNo": mov_no}
     ) or []
     return {row["scnYmd"] for row in data if row.get("scnYmd")}
+
+
+def get_showtimes(client: CGVClient, site_no: str, mov_no: str, ymd: str) -> list[dict]:
+    """특정 날짜의 상영 회차 목록 (시작시각 HHMM 오름차순). 관 필터 판정에 사용."""
+    data = client.get_json(
+        "searchSchByMov",
+        {"siteNo": site_no, "movNo": mov_no, "scnYmd": ymd, "rtctlScopCd": "08"},
+    ) or []
+    rows = [
+        {
+            "start": row.get("scnsrtTm", ""),
+            "screen": row.get("scnsNm", ""),
+            "free_seats": row.get("frSeatCnt", ""),
+        }
+        for row in data
+        if row.get("scnsrtTm")
+    ]
+    return sorted(rows, key=lambda r: r["start"])
