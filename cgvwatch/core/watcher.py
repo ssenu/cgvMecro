@@ -7,7 +7,7 @@ from dataclasses import replace
 from datetime import datetime
 from typing import Callable, Optional
 
-from cgvwatch.cgv.showtimes import get_open_dates, get_showtimes
+from cgvwatch.cgv.showtimes import get_open_dates
 from cgvwatch.core.detect import evaluate
 from cgvwatch.core.models import Settings, Status, Watch
 from cgvwatch.notify.discord import send_error_alert, send_open_alert
@@ -49,14 +49,7 @@ def check_watch(
 
     if evaluate(watch, open_dates):
         try:
-            showtimes = get_showtimes(client, watch.site_no, watch.mov_no, watch.target_ymd)
-        except Exception as exc:
-            # 회차 목록은 부가 정보 → 조회 실패해도 오픈 알림은 나가야 한다.
-            logger.warning("회차 조회 실패(알림은 진행): %s → %s", watch.mov_nm, exc)
-            showtimes = []
-
-        try:
-            notify(watch, settings, showtimes)
+            notify(watch, settings)
         except Exception as exc:
             # 열렸지만 알림 실패(웹훅 미설정 등) → 앱을 죽이지 않는다.
             # was_open을 True로 올리지 않아 다음 주기에 재시도한다.

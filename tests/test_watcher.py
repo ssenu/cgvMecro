@@ -142,34 +142,3 @@ def test_check_watch_error_alert_failure_is_swallowed(monkeypatch):
     result = check_watch(MagicMock(), _watch(), Settings(), notify=MagicMock(),
                          notify_error=MagicMock(side_effect=RuntimeError("디코 장애")))
     assert result.status == Status.ERROR
-
-
-def test_check_watch_passes_showtimes_to_notify(monkeypatch):
-    import cgvwatch.core.watcher as w
-    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
-    monkeypatch.setattr(w, "get_showtimes", lambda c, s, m, y: [
-        {"start": "1800", "screen": "2관", "free_seats": "20"},
-    ])
-    notify = MagicMock()
-
-    result = check_watch(MagicMock(), _watch(), Settings(), notify=notify,
-                         notify_error=MagicMock())
-
-    assert result.was_open is True and result.status == Status.OPEN
-    assert notify.call_args[0][2] == [{"start": "1800", "screen": "2관", "free_seats": "20"}]
-
-
-def test_check_watch_alerts_even_if_showtimes_fetch_fails(monkeypatch):
-    """회차 조회 실패가 오픈 알림을 막으면 안 된다(회차는 부가 정보)."""
-    import cgvwatch.core.watcher as w
-    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
-    def boom(c, s, m, y):
-        raise RuntimeError("회차 API 오류")
-    monkeypatch.setattr(w, "get_showtimes", boom)
-    notify = MagicMock()
-
-    result = check_watch(MagicMock(), _watch(), Settings(), notify=notify,
-                         notify_error=MagicMock())
-
-    assert result.was_open is True and result.status == Status.OPEN
-    assert notify.call_args[0][2] == []
