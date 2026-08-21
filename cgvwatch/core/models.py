@@ -18,6 +18,8 @@ class Watch:
     site_no: str
     site_nm: str
     target_ymd: str  # YYYYMMDD
+    time_from: str = ""  # HHMM, 빈 값이면 시간대 제한 없음
+    time_to: str = ""    # HHMM
     status: str = Status.WAITING
     was_open: bool = False
     last_checked: str = ""

@@ -91,3 +91,11 @@ def test_build_message_contains_booking_deep_link():
     assert "scnYmd=20260725" in msg
     assert "siteNo=0056" in msg
     assert "siteNm=%EA%B0%95%EB%82%A8" in msg  # '강남' URL 인코딩
+
+
+def test_build_message_includes_showtimes():
+    showtimes = [{"start": "1800", "screen": "2관 (Laser)", "free_seats": "34"}]
+    msg = discord.build_message(_watch(), showtimes)
+    assert "18:00" in msg
+    assert "2관 (Laser)" in msg
+    assert "34" in msg

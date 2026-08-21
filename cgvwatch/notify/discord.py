@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-from typing import Callable
+from typing import Callable, Optional
 from urllib.parse import quote
 
 import requests
@@ -21,15 +21,23 @@ def booking_url(watch: Watch) -> str:
     )
 
 
-def build_message(watch: Watch) -> str:
+def build_message(watch: Watch, showtimes: Optional[list[dict]] = None) -> str:
     ymd = watch.target_ymd
     date = f"{ymd[4:6]}/{ymd[6:8]}"
-    return (
-        f"🎬 **{watch.mov_nm}**\n"
-        f"{watch.site_nm} {date} 예매가 열렸습니다!\n"
-        f"👉 바로 예매하기 (시간대만 고르면 좌석 선택으로 넘어갑니다)\n"
-        f"{booking_url(watch)}"
-    )
+    lines = [
+        f"🎬 **{watch.mov_nm}**",
+        f"{watch.site_nm} {date} 예매가 열렸습니다!",
+    ]
+    for s in (showtimes or [])[:10]:
+        t = s.get("start", "")
+        hhmm = f"{t[:2]}:{t[2:]}" if len(t) == 4 else t
+        seats = f" · 잔여 {s['free_seats']}석" if s.get("free_seats") else ""
+        lines.append(f"🕒 {hhmm} {s.get('screen', '')}{seats}")
+    lines += [
+        "👉 바로 예매하기 (시간대만 고르면 좌석 선택으로 넘어갑니다)",
+        booking_url(watch),
+    ]
+    return "\n".join(lines)
 
 
 def build_created_message(watch: Watch) -> str:
@@ -52,10 +60,11 @@ def _send(content: str, post: Callable) -> None:
 def send_open_alert(
     watch: Watch,
     settings: Settings,
+    showtimes: Optional[list[dict]] = None,
     post: Callable = requests.post,
 ) -> None:
     """예매 오픈 알림 발송. 미설정/HTTP 오류 시 예외를 던진다(호출부에서 재시도 처리)."""
-    _send(build_message(watch), post)
+    _send(build_message(watch, showtimes), post)
 
 
 def send_error_alert(

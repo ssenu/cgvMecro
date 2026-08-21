@@ -26,3 +26,21 @@ def test_evaluate_false_when_already_open_no_duplicate():
 
 def test_default_status_is_waiting():
     assert _watch().status == Status.WAITING
+
+
+def test_filter_showtimes_by_range():
+    from cgvwatch.core.detect import filter_showtimes
+    rows = [{"start": "0900"}, {"start": "1800"}, {"start": "2130"}]
+    assert filter_showtimes(rows, "1700", "2200") == [{"start": "1800"}, {"start": "2130"}]
+
+
+def test_filter_showtimes_no_range_returns_all():
+    from cgvwatch.core.detect import filter_showtimes
+    rows = [{"start": "0900"}, {"start": "1800"}]
+    assert filter_showtimes(rows, "", "") == rows
+
+
+def test_filter_showtimes_inclusive_bounds():
+    from cgvwatch.core.detect import filter_showtimes
+    rows = [{"start": "1700"}, {"start": "2200"}]
+    assert filter_showtimes(rows, "1700", "2200") == rows

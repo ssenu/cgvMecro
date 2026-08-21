@@ -142,3 +142,75 @@ def test_check_watch_error_alert_failure_is_swallowed(monkeypatch):
     result = check_watch(MagicMock(), _watch(), Settings(), notify=MagicMock(),
                          notify_error=MagicMock(side_effect=RuntimeError("디코 장애")))
     assert result.status == Status.ERROR
+
+
+def _range_watch(**kw):
+    base = dict(id="1", mov_no="30001192", mov_nm="스파이더맨", site_no="0056",
+                site_nm="강남", target_ymd="20260729", time_from="1700", time_to="2200")
+    base.update(kw)
+    return Watch(**base)
+
+
+def test_check_watch_time_range_match_alerts_with_showtimes(monkeypatch):
+    import cgvwatch.core.watcher as w
+    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
+    monkeypatch.setattr(w, "get_showtimes", lambda c, s, m, y: [
+        {"start": "0900", "screen": "1관", "free_seats": "10"},
+        {"start": "1800", "screen": "2관", "free_seats": "20"},
+    ])
+    notify = MagicMock()
+
+    result = check_watch(MagicMock(), _range_watch(), Settings(), notify=notify,
+                         notify_error=MagicMock())
+
+    assert result.was_open is True and result.status == Status.OPEN
+    passed = notify.call_args[0][2]  # (watch, settings, showtimes)
+    assert passed == [{"start": "1800", "screen": "2관", "free_seats": "20"}]
+
+
+def test_check_watch_time_range_no_match_keeps_waiting(monkeypatch):
+    """날짜는 열렸어도 범위 내 회차가 없으면 알림 없이 대기(다음 주기 재확인)."""
+    import cgvwatch.core.watcher as w
+    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
+    monkeypatch.setattr(w, "get_showtimes", lambda c, s, m, y: [
+        {"start": "0900", "screen": "1관", "free_seats": "10"},
+    ])
+    notify = MagicMock()
+
+    result = check_watch(MagicMock(), _range_watch(), Settings(), notify=notify,
+                         notify_error=MagicMock())
+
+    assert result.was_open is False and result.status == Status.WAITING
+    notify.assert_not_called()
+
+
+def test_check_watch_no_range_alerts_even_if_showtimes_fetch_fails(monkeypatch):
+    """범위 미설정이면 회차 조회 실패가 오픈 알림을 막으면 안 된다."""
+    import cgvwatch.core.watcher as w
+    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
+    def boom(c, s, m, y):
+        raise RuntimeError("회차 API 오류")
+    monkeypatch.setattr(w, "get_showtimes", boom)
+    notify = MagicMock()
+
+    result = check_watch(MagicMock(), _watch(), Settings(), notify=notify,
+                         notify_error=MagicMock())
+
+    assert result.was_open is True and result.status == Status.OPEN
+    assert notify.call_args[0][2] == []
+
+
+def test_check_watch_range_set_but_showtimes_fetch_fails_is_error(monkeypatch):
+    """범위 조건을 판정할 수 없으면 ERROR로 표시하고 다음 주기 재시도."""
+    import cgvwatch.core.watcher as w
+    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
+    def boom(c, s, m, y):
+        raise RuntimeError("회차 API 오류")
+    monkeypatch.setattr(w, "get_showtimes", boom)
+    notify = MagicMock()
+
+    result = check_watch(MagicMock(), _range_watch(), Settings(), notify=notify,
+                         notify_error=MagicMock())
+
+    assert result.status == Status.ERROR and result.was_open is False
+    notify.assert_not_called()
