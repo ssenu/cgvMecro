@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Callable, Optional
 
 from cgvwatch.cgv.showtimes import get_open_dates, get_showtimes
-from cgvwatch.core.detect import evaluate, filter_showtimes
+from cgvwatch.core.detect import evaluate
 from cgvwatch.core.models import Settings, Status, Watch
 from cgvwatch.notify.discord import send_error_alert, send_open_alert
 
@@ -48,25 +48,15 @@ def check_watch(
         return _to_error(watch, settings, f"CGV 조회 실패: {exc}", now, notify_error)
 
     if evaluate(watch, open_dates):
-        has_range = bool(watch.time_from or watch.time_to)
         try:
             showtimes = get_showtimes(client, watch.site_no, watch.mov_no, watch.target_ymd)
         except Exception as exc:
-            if has_range:
-                # 시간대 조건을 판정할 수 없으면 오류로 표시하고 다음 주기 재시도.
-                logger.warning("회차 조회 실패: %s %s → %s", watch.mov_nm, watch.site_nm, exc)
-                return _to_error(watch, settings, f"회차 조회 실패: {exc}", now, notify_error)
-            # 범위 미설정이면 회차 목록은 부가 정보 → 실패해도 알림은 나가야 한다.
+            # 회차 목록은 부가 정보 → 조회 실패해도 오픈 알림은 나가야 한다.
             logger.warning("회차 조회 실패(알림은 진행): %s → %s", watch.mov_nm, exc)
             showtimes = []
 
-        matched = filter_showtimes(showtimes, watch.time_from, watch.time_to)
-        if has_range and not matched:
-            # 날짜는 열렸지만 원하는 시간대 회차가 아직 없다 → 계속 대기.
-            return replace(watch, status=Status.WAITING, last_checked=now, last_error="")
-
         try:
-            notify(watch, settings, matched)
+            notify(watch, settings, showtimes)
         except Exception as exc:
             # 열렸지만 알림 실패(웹훅 미설정 등) → 앱을 죽이지 않는다.
             # was_open을 True로 올리지 않아 다음 주기에 재시도한다.

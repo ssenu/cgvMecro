@@ -193,12 +193,6 @@
     color: var(--status-error-fg);
   }
 
-  .time-range {
-    margin-top: 4px;
-    font-size: 0.74rem;
-    color: var(--text-muted);
-  }
-
   .error-reason {
     margin-top: 4px;
     font-size: 0.74rem;
@@ -330,14 +324,6 @@
           <input id="date-input" type="date" required>
         </div>
         <div class="field">
-          <label for="time-from-input">시간대 (선택)</label>
-          <input id="time-from-input" type="time" title="이 시각 이후 회차만">
-        </div>
-        <div class="field">
-          <label for="time-to-input">&nbsp;~&nbsp;</label>
-          <input id="time-to-input" type="time" title="이 시각 이전 회차만">
-        </div>
-        <div class="field">
           <button type="submit" class="primary" id="add-btn">추가</button>
         </div>
       </form>
@@ -361,8 +347,6 @@
   var movieSelect = document.getElementById("movie-select");
   var theaterSelect = document.getElementById("theater-select");
   var dateInput = document.getElementById("date-input");
-  var timeFromInput = document.getElementById("time-from-input");
-  var timeToInput = document.getElementById("time-to-input");
   var addForm = document.getElementById("add-watch-form");
   var addBtn = document.getElementById("add-btn");
   var intervalDisplay = document.getElementById("interval-display");
@@ -388,11 +372,6 @@
 
   dateInput.min = todayYmd();
   dateInput.value = todayYmd();
-
-  function fmtTime(t) {
-    if (!t) return "";
-    return t.slice(0, 2) + ":" + t.slice(2);
-  }
 
   function formatDate(ymd) {
     if (!ymd || ymd.length !== 8) return ymd || "";
@@ -425,12 +404,6 @@
 
       var dateTd = document.createElement("td");
       dateTd.textContent = formatDate(w.target_ymd);
-      if (w.time_from || w.time_to) {
-        var range = document.createElement("div");
-        range.className = "time-range";
-        range.textContent = fmtTime(w.time_from) + " ~ " + fmtTime(w.time_to);
-        dateTd.appendChild(range);
-      }
       tr.appendChild(dateTd);
 
       var statusTd = document.createElement("td");
@@ -619,21 +592,13 @@
     }
 
     var ymd = dateInput.value.replace(/-/g, "");
-    var timeFrom = timeFromInput.value.replace(":", "");
-    var timeTo = timeToInput.value.replace(":", "");
-    if (timeFrom && timeTo && timeFrom > timeTo) {
-      showError("시간대 범위가 잘못되었습니다. 시작 시각이 끝 시각보다 늦습니다.");
-      return;
-    }
 
     var payload = {
       mov_no: movOpt.value,
       mov_nm: movOpt.dataset.movNm || movOpt.textContent,
       site_no: siteOpt.value,
       site_nm: siteOpt.dataset.siteNm || siteOpt.textContent,
-      target_ymd: ymd,
-      time_from: timeFrom,
-      time_to: timeTo
+      target_ymd: ymd
     };
 
     addBtn.disabled = true;

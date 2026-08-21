@@ -31,8 +31,6 @@ class WatchIn(BaseModel):
     site_no: str
     site_nm: str
     target_ymd: str = Field(pattern=r"^\d{8}$")
-    time_from: str = Field(default="", pattern=r"^(\d{4})?$")
-    time_to: str = Field(default="", pattern=r"^(\d{4})?$")
 
 
 class SettingsIn(BaseModel):
