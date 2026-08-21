@@ -81,3 +81,13 @@ def test_send_error_alert_posts_reason(monkeypatch):
     assert "오류" in payload["content"]
     assert "HTTP 403" in payload["content"]
     assert "강남" in payload["content"]
+
+
+def test_build_message_contains_booking_deep_link():
+    """오픈 알림에는 영화·극장·날짜가 선택된 예매 페이지 딥링크가 포함돼야 한다."""
+    msg = discord.build_message(_watch())
+    assert "https://cgv.co.kr/cnm/movieBook/movie?" in msg
+    assert "movNo=30001192" in msg
+    assert "scnYmd=20260725" in msg
+    assert "siteNo=0056" in msg
+    assert "siteNm=%EA%B0%95%EB%82%A8" in msg  # '강남' URL 인코딩

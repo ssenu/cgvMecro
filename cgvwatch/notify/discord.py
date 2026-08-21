@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 from typing import Callable
+from urllib.parse import quote
 
 import requests
 
@@ -11,13 +12,23 @@ from cgvwatch.core.models import Settings, Watch
 WEBHOOK_ENV = "DISCORD_WEBHOOK_URL"
 
 
+def booking_url(watch: Watch) -> str:
+    """영화·극장·날짜가 미리 선택된 CGV 예매 페이지 딥링크."""
+    return (
+        "https://cgv.co.kr/cnm/movieBook/movie"
+        f"?movNo={watch.mov_no}&scnYmd={watch.target_ymd}"
+        f"&siteNo={watch.site_no}&siteNm={quote(watch.site_nm)}"
+    )
+
+
 def build_message(watch: Watch) -> str:
     ymd = watch.target_ymd
     date = f"{ymd[4:6]}/{ymd[6:8]}"
     return (
         f"🎬 **{watch.mov_nm}**\n"
         f"{watch.site_nm} {date} 예매가 열렸습니다!\n"
-        f"https://cgv.co.kr"
+        f"👉 바로 예매하기 (시간대만 고르면 좌석 선택으로 넘어갑니다)\n"
+        f"{booking_url(watch)}"
     )
 
 
