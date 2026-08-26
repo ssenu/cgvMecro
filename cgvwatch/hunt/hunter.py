@@ -8,6 +8,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
+from playwright.sync_api import Error as PlaywrightError
+
 from cgvwatch.cgv.seats import get_seat_map
 from cgvwatch.core.models import Watch
 from cgvwatch.core.seatpick import pick_seats
@@ -17,6 +19,10 @@ logger = logging.getLogger(__name__)
 
 POLL_SEC = 1.0  # 좌석 폴링 하한. 더 짧게 하지 않는다.
 BACKOFF_SEC = 5.0  # 429를 받았을 때 추가로 쉬는 시간
+
+MODAL_NONE = "none"      # 모달 없음
+MODAL_CLOSED = "closed"  # 모달을 닫았다 → 다음 후보로
+MODAL_STUCK = "stuck"    # 닫지 못했다 → 이번 주기 중단
 
 
 @dataclass
@@ -55,11 +61,16 @@ class Hunter:
     def _seat_button_count(self) -> int:
         return self.page.locator(sel.SEAT_BUTTON).count()
 
-    def _seat_held(self) -> bool:
+    def _seat_held_state(self) -> Optional[bool]:
+        """좌석 확보 문구가 있는지 확인한다. 확인할 수 없으면 None."""
         try:
-            return sel.SEAT_HELD_TEXT in self.page.inner_text("body", timeout=5000)
-        except Exception:
-            return False
+            return sel.SEAT_HELD_TEXT in self.page.inner_text(sel.BODY, timeout=5000)
+        except PlaywrightError:
+            return None
+
+    def _seat_held(self, default: bool = False) -> bool:
+        state = self._seat_held_state()
+        return default if state is None else state
 
     def _left_seat_page(self) -> bool:
         return sel.SEAT_PATH not in self.page.url
@@ -76,14 +87,17 @@ class Hunter:
     def _click_cta(self) -> None:
         self.page.get_by_role("button", name=sel.CTA_TEXT).first.click(timeout=5000)
 
-    def _handle_modal(self, seat_name: str) -> bool:
-        """모달이 떠 있으면 닫고 True. 휠체어석 경고면 블랙리스트에 넣는다."""
+    def _handle_modal(self, seat_name: str) -> str:
+        """모달이 떠 있으면 닫는다. 휠체어석 경고면 블랙리스트에 넣는다.
+
+        반환값은 MODAL_NONE / MODAL_CLOSED / MODAL_STUCK 중 하나다.
+        """
         modal = self.page.locator(sel.MODAL)
         if modal.count() == 0:
-            return False
+            return MODAL_NONE
         try:
             text = modal.first.inner_text(timeout=2000)
-        except Exception:
+        except PlaywrightError:
             text = ""
         if re.search(sel.WHEELCHAIR_TEXT, text):
             self._blacklist.add(seat_name)
@@ -91,21 +105,35 @@ class Hunter:
             modal.first.get_by_role(
                 "button", name=re.compile(sel.MODAL_CLOSE_TEXT)
             ).first.click(timeout=2000)
-        except Exception:
-            logger.warning("모달을 닫지 못했습니다: %s", text[:60])
-        return True
+        except PlaywrightError:
+            pass
+        if modal.count() == 0:
+            return MODAL_CLOSED
+        logger.warning("모달을 닫지 못했습니다: %s", text[:60])
+        return MODAL_STUCK
 
     # --- 본 흐름 ---
 
-    def _try_group(self, group: list[dict]) -> bool:
-        """좌석 그룹을 클릭하고 선택완료까지. 결제 페이지로 넘어가면 True."""
+    def _try_group(self, group: list[dict]) -> Optional[bool]:
+        """좌석 그룹을 클릭하고 선택완료까지.
+
+        결제 페이지로 넘어가면 True, 후보를 포기하면 False,
+        모달이 고착돼 이번 주기를 중단해야 하면 None을 돌려준다.
+        """
         for seat in group:
+            if self._stop.is_set():
+                return False
             self._click_seat(seat)
             time.sleep(0.15)
-            if self._handle_modal(seat["name"]):
+            outcome = self._handle_modal(seat["name"])
+            if outcome == MODAL_STUCK:
+                return None
+            if outcome == MODAL_CLOSED:
                 return False
         self._click_cta()
         for _ in range(50):
+            if self._stop.is_set():
+                return False
             time.sleep(0.2)
             if self._left_seat_page():
                 return True
@@ -114,7 +142,10 @@ class Hunter:
     def run(self, max_cycles: int = 3600) -> HuntResult:
         if self._stop.is_set():
             return HuntResult("중단", detail="시작 전 중단 요청")
-        if self._seat_held():
+        held_state = self._seat_held_state()
+        if held_state is None:
+            return HuntResult("중단", detail="좌석 선점 여부를 확인할 수 없어 중단했습니다.")
+        if held_state:
             return HuntResult("중단", detail="이미 선택된 좌석이 있어 건드리지 않았습니다.")
         if self._seat_button_count() == 0:
             return HuntResult("구조변경", detail=f"좌석 버튼({sel.SEAT_BUTTON})을 찾지 못했습니다.")
@@ -153,10 +184,15 @@ class Hunter:
                 names = [s["name"] for s in group]
                 self.on_event(f"좌석 시도: {', '.join(names)}")
                 try:
-                    if self._try_group(group):
-                        return HuntResult("확보", seats=names, detail="결제 페이지 도달")
-                except Exception as exc:
+                    outcome = self._try_group(group)
+                except PlaywrightError as exc:
                     logger.warning("좌석 클릭 실패 %s: %s", names, exc)
+                    outcome = False
+                if outcome is None:
+                    # 모달이 고착됐다 - 이번 주기의 남은 후보는 시도하지 않는다
+                    break
+                if outcome:
+                    return HuntResult("확보", seats=names, detail="결제 페이지 도달")
                 if self._seat_held():
                     return HuntResult("확보", seats=names, detail="좌석 선점 확인")
 
