@@ -120,3 +120,36 @@ def test_add_watch_with_screen_filter(api, monkeypatch):
     assert res.json()["screen_filter"] == "IMAX"
     _, saved = store.load()
     assert saved[0].screen_filter == "IMAX"
+
+
+def test_add_watch_with_hunt_options(api, monkeypatch):
+    tc, store, _ = api
+    import cgvwatch.web.server as srv
+    monkeypatch.setattr(srv, "send_created_alert", MagicMock())
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산아이파크몰",
+            "target_ymd": "20260729", "screen_filter": "IMAX",
+            "hunt_enabled": True, "seat_count": 2, "row_offset": 2,
+            "preferred_time": "1900"}
+
+    res = tc.post("/api/watches", json=body)
+
+    assert res.status_code == 201
+    assert res.json()["hunt_enabled"] is True
+    _, saved = store.load()
+    assert saved[0].seat_count == 2
+    assert saved[0].row_offset == 2
+    assert saved[0].preferred_time == "1900"
+
+
+def test_add_watch_rejects_bad_seat_count(api):
+    tc, _, _ = api
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산",
+            "target_ymd": "20260729", "seat_count": 5}
+    assert tc.post("/api/watches", json=body).status_code == 422
+
+
+def test_add_watch_rejects_bad_preferred_time(api):
+    tc, _, _ = api
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산",
+            "target_ymd": "20260729", "preferred_time": "7pm"}
+    assert tc.post("/api/watches", json=body).status_code == 422

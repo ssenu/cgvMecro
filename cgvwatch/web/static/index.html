@@ -200,6 +200,21 @@
     opacity: 0.85;
   }
 
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+    font-size: 0.9rem;
+    padding: 8px 0;
+  }
+
+  .hunt-mark {
+    margin-top: 4px;
+    font-size: 0.74rem;
+    color: var(--accent-hover);
+  }
+
   .error-reason {
     margin-top: 4px;
     font-size: 0.74rem;
@@ -345,6 +360,28 @@
           </datalist>
         </div>
         <div class="field">
+          <label for="hunt-check">좌석 자동 확보</label>
+          <label class="check-row">
+            <input id="hunt-check" type="checkbox">
+            <span>켜기</span>
+          </label>
+        </div>
+        <div class="field">
+          <label for="seat-count-input">인원</label>
+          <select id="seat-count-input">
+            <option value="1">1명</option>
+            <option value="2">2명</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="row-offset-input">중앙 기준 열 오프셋</label>
+          <input id="row-offset-input" type="number" min="-5" max="5" value="1">
+        </div>
+        <div class="field">
+          <label for="pref-time-input">선호 시각 (선택)</label>
+          <input id="pref-time-input" type="time">
+        </div>
+        <div class="field">
           <button type="submit" class="primary" id="add-btn">추가</button>
         </div>
       </form>
@@ -369,6 +406,10 @@
   var theaterSelect = document.getElementById("theater-select");
   var dateInput = document.getElementById("date-input");
   var screenInput = document.getElementById("screen-input");
+  var huntCheck = document.getElementById("hunt-check");
+  var seatCountInput = document.getElementById("seat-count-input");
+  var rowOffsetInput = document.getElementById("row-offset-input");
+  var prefTimeInput = document.getElementById("pref-time-input");
   var addForm = document.getElementById("add-watch-form");
   var addBtn = document.getElementById("add-btn");
   var intervalDisplay = document.getElementById("interval-display");
@@ -427,6 +468,12 @@
         scr.className = "screen-filter";
         scr.textContent = w.screen_filter + " 관만";
         siteTd.appendChild(scr);
+      }
+      if (w.hunt_enabled) {
+        var hm = document.createElement("div");
+        hm.className = "hunt-mark";
+        hm.textContent = "자동 확보 " + w.seat_count + "명";
+        siteTd.appendChild(hm);
       }
       tr.appendChild(siteTd);
 
@@ -627,7 +674,11 @@
       site_no: siteOpt.value,
       site_nm: siteOpt.dataset.siteNm || siteOpt.textContent,
       target_ymd: ymd,
-      screen_filter: screenInput.value.trim()
+      screen_filter: screenInput.value.trim(),
+      hunt_enabled: huntCheck.checked,
+      seat_count: parseInt(seatCountInput.value, 10),
+      row_offset: parseInt(rowOffsetInput.value, 10) || 0,
+      preferred_time: prefTimeInput.value.replace(":", "")
     };
 
     addBtn.disabled = true;

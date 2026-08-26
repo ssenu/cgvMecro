@@ -32,6 +32,10 @@ class WatchIn(BaseModel):
     site_nm: str
     target_ymd: str = Field(pattern=r"^\d{8}$")
     screen_filter: str = Field(default="", max_length=30)
+    hunt_enabled: bool = False
+    seat_count: int = Field(default=1, ge=1, le=2)
+    row_offset: int = Field(default=1, ge=-5, le=5)
+    preferred_time: str = Field(default="", pattern=r"^(\d{4})?$")
 
 
 class SettingsIn(BaseModel):
