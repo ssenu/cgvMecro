@@ -107,3 +107,20 @@ def test_is_running_false_when_context_probe_raises(tmp_path):
 def test_is_running_false_when_no_context(tmp_path):
     m = _manager(tmp_path)
     assert m.is_running() is False
+
+
+def test_page_raises_when_context_dead():
+    """죽은 컨텍스트에서 page()는 Playwright 예외가 아니라 RuntimeError를 낸다."""
+    import pytest
+    from cgvwatch.hunt.browser import BrowserManager
+
+    class DeadContext:
+        @property
+        def pages(self):
+            raise RuntimeError("Target page, context or browser has been closed")
+
+    import pathlib as _pl
+    m = BrowserManager(_pl.Path("/tmp/none"))
+    m._context = DeadContext()  # 실제 브라우저를 띄우지 않고 죽은 상태를 흉내낸다
+    with pytest.raises(RuntimeError):
+        m.page()

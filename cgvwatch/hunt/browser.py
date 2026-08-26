@@ -92,10 +92,17 @@ class BrowserManager:
             self._pw = None
 
     def page(self):
-        """첫 번째 탭. 브라우저가 꺼져 있으면 RuntimeError."""
-        if not self._context:
+        """첫 번째 탭. 브라우저가 꺼져 있거나 사용자가 창을 닫았으면 RuntimeError.
+
+        객체가 남아 있어도 실제로는 죽었을 수 있으므로 is_running()으로 확인한다.
+        """
+        if not self.is_running():
             raise RuntimeError("브라우저가 실행되지 않았습니다.")
-        return self._context.pages[0] if self._context.pages else self._context.new_page()
+        try:
+            pages = self._context.pages
+            return pages[0] if pages else self._context.new_page()
+        except Exception as exc:
+            raise RuntimeError("브라우저 창이 닫혔습니다.") from exc
 
     def login_state(self) -> Optional[bool]:
         """로그인 상태. True=로그인됨 / False=로그아웃됨 / None=판정 불가.
