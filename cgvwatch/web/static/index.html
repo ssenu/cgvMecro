@@ -629,7 +629,7 @@
     if (w.preferred_time) {
       metaParts.push("선호 시각 " + w.preferred_time.slice(0, 2) + ":" + w.preferred_time.slice(2, 4));
     }
-    if (w.row_offset) metaParts.push("열 오프셋 " + w.row_offset);
+    if (w.row_offset !== undefined && w.row_offset !== null) metaParts.push("열 오프셋 " + w.row_offset);
     if (metaParts.length) {
       var meta = document.createElement("div");
       meta.className = "watch-meta";
@@ -731,12 +731,18 @@
       });
   }
 
-  function deleteWatch(id) {
+  function deleteWatchSilently(id) {
     return fetch("/api/watches/" + id, { method: "DELETE" })
       .then(function (res) {
         if (!res.ok && res.status !== 204) {
           throw new Error("삭제에 실패했습니다.");
         }
+      });
+  }
+
+  function deleteWatch(id) {
+    return deleteWatchSilently(id)
+      .then(function () {
         loadWatches();
       })
       .catch(function (err) {
@@ -893,17 +899,19 @@
 
     addBtn.disabled = true;
 
-    Promise.all((lastWatches || []).map(function (w) { return deleteWatch(w.id); }))
-      .then(function () {
-        return fetch("/api/watches", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-      })
+    var idsToReplace = (lastWatches || []).map(function (w) { return w.id; });
+
+    fetch("/api/watches", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
       .then(function (res) {
         if (!res.ok) throw new Error("감시 추가에 실패했습니다.");
         return res.json();
+      })
+      .then(function () {
+        return Promise.all(idsToReplace.map(function (id) { return deleteWatchSilently(id); }));
       })
       .then(function () {
         loadWatches();
