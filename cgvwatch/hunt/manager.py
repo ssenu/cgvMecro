@@ -104,8 +104,8 @@ class HuntManager(threading.Thread):
             self._browser.start()
         return self._browser.is_running()
 
-    def _open_seat_page(self, watch: Watch, showtime: dict) -> bool:
-        """예매 페이지로 이동해 회차를 클릭하고 좌석 화면까지 간다."""
+    def _open_seat_page(self, watch: Watch, showtime: dict) -> str:
+        """예매 페이지 → 회차 클릭 → 좌석 화면. "ok" | "login" | "fail"."""
         page = self._browser.page()
         url = sel.BOOKING_URL_TMPL.format(
             mov_no=watch.mov_no,
@@ -120,22 +120,37 @@ class HuntManager(threading.Thread):
             page.locator(sel.SHOWTIME_BUTTON, has_text=label).first.click(timeout=15000)
         except Exception as exc:
             logger.warning("회차 클릭 실패(%s): %s", label, exc)
-            return False
+            return "fail"
+
+        # 로그인하지 않았으면 CGV가 안내 모달을 띄운다 (확인: 2026-08-26)
+        try:
+            modal = page.locator(sel.MODAL)
+            if modal.count() and sel.LOGIN_REQUIRED_TEXT in modal.first.inner_text(timeout=3000):
+                logger.info("CGV가 로그인을 요구했습니다: %s", watch.mov_nm)
+                return "login"
+        except Exception:
+            logger.debug("모달 확인 실패(무시)", exc_info=True)
         for _ in range(60):
             if sel.SEAT_PATH in page.url:
-                return True
+                return "ok"
             page.wait_for_timeout(500)
-        return False
+        logger.warning("좌석 화면(%s)에 도달하지 못했습니다: %s", sel.SEAT_PATH, page.url)
+        return "fail"
 
     def _process(self, watch: Watch) -> None:
         settings = self._get_settings()
         if not (self._browser and self._browser.is_running()):
             self._record(watch, "브라우저없음", "브라우저를 먼저 열어주세요.")
             return
-        if not self._browser.is_logged_in():
+        state = self._browser.login_state()
+        if state is False:
             self._notify(send_login_required, settings)
             self._record(watch, "로그인필요", "CGV 로그인 후 다시 시도합니다.")
             return
+        if state is None:
+            # 판정할 수 없으면 막지 않는다. 회차를 눌러보면 CGV가
+            # "로그인이 필요한 서비스"라고 알려주므로 그때 판정한다.
+            logger.info("로그인 상태 판정 불가 — 일단 진행합니다: %s", watch.mov_nm)
 
         showtimes = get_showtimes(
             self._client, watch.site_no, watch.mov_no, watch.target_ymd
@@ -145,7 +160,12 @@ class HuntManager(threading.Thread):
             self._record(watch, "회차없음", "조건에 맞는 회차를 찾지 못했습니다.")
             return
 
-        if not self._open_seat_page(watch, showtime):
+        entry = self._open_seat_page(watch, showtime)
+        if entry == "login":
+            self._notify(send_login_required, settings)
+            self._record(watch, "로그인필요", "CGV가 로그인을 요구했습니다.")
+            return
+        if entry != "ok":
             self._notify(send_structure_warning, watch, settings, "좌석 화면까지 진입하지 못했습니다.")
             self._record(watch, "구조변경", "좌석 화면 진입 실패")
             return

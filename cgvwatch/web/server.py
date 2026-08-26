@@ -20,7 +20,7 @@ from cgvwatch.core.models import Settings, Watch
 from cgvwatch.core.store import Store
 from cgvwatch.core.watcher import WatcherThread
 from cgvwatch.hunt.manager import HuntManager
-from cgvwatch.notify.discord import send_created_alert
+from cgvwatch.notify.discord import WebhookNotConfigured, send_created_alert
 
 logger = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).parent / "static"
@@ -127,8 +127,11 @@ def create_app(
         state.add_watch(watch)
         try:
             send_created_alert(watch, state.settings)
+        except WebhookNotConfigured:
+            # 보낼 곳이 없는 것은 오류가 아니다. 조용히 넘어간다.
+            logger.info("웹훅 미설정 — 등록 알림을 건너뜁니다: %s", watch.mov_nm)
         except Exception:
-            # 등록 알림 실패(웹훅 미설정 등)가 등록 자체를 막으면 안 된다.
+            # 등록 알림 실패가 등록 자체를 막으면 안 된다.
             logger.exception("등록 알림 발송 실패: %s", watch.mov_nm)
         return asdict(watch)
 

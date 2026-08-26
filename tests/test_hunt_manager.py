@@ -48,7 +48,7 @@ def test_process_one_requires_login(tmp_path, monkeypatch):
     alert = MagicMock()
     monkeypatch.setattr(hm, "send_login_required", alert)
     m = _manager(tmp_path)
-    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: False)
+    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: False, login_state=lambda: False)
 
     m._process(_watch())
 
@@ -60,7 +60,7 @@ def test_process_one_reports_no_showtime(tmp_path, monkeypatch):
     import cgvwatch.hunt.manager as hm
     monkeypatch.setattr(hm, "get_showtimes", lambda *a, **k: [])
     m = _manager(tmp_path)
-    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: True)
+    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: True, login_state=lambda: True)
 
     m._process(_watch(screen_filter="IMAX"))
 
@@ -146,11 +146,11 @@ def test_notify_failure_does_not_change_hunt_outcome(tmp_path, monkeypatch):
     from cgvwatch.hunt.hunter import HuntResult
 
     m = _manager(tmp_path)
-    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: True)
+    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: True, login_state=lambda: True)
     monkeypatch.setattr(hm, "get_showtimes", lambda *a, **k: [
         {"start": "1900", "screen": "3관", "free_seats": "5",
          "scns_no": "003", "scn_sseq": "2"}])
-    monkeypatch.setattr(m, "_open_seat_page", lambda w, s: True)
+    monkeypatch.setattr(m, "_open_seat_page", lambda w, s: "ok")
     monkeypatch.setattr(hm, "Hunter", lambda *a, **k: MagicMock(
         run=lambda: HuntResult("확보", seats=["H12"], detail="결제 페이지 도달")))
     # 알림 두 종류 모두 실패시킨다
@@ -162,3 +162,31 @@ def test_notify_failure_does_not_change_hunt_outcome(tmp_path, monkeypatch):
     last = m.status()["last"]
     assert last["status"] == "확보"
     assert last["seats"] == ["H12"]
+
+
+def test_process_proceeds_when_login_state_unknown(tmp_path, monkeypatch):
+    """로그인 상태를 판정할 수 없으면 막지 말고 진행해야 한다."""
+    import cgvwatch.hunt.manager as hm
+    m = _manager(tmp_path)
+    m._browser = MagicMock(is_running=lambda: True, login_state=lambda: None)
+    monkeypatch.setattr(hm, "get_showtimes", lambda *a, **k: [])
+
+    m._process(_watch())
+
+    # 로그인에서 멈추지 않고 회차 조회까지 갔다
+    assert m.status()["last"]["status"] == "회차없음"
+
+
+def test_process_reports_login_when_cgv_demands_it(tmp_path, monkeypatch):
+    """회차를 눌렀을 때 CGV가 로그인을 요구하면 '로그인필요'로 기록한다."""
+    import cgvwatch.hunt.manager as hm
+    m = _manager(tmp_path)
+    m._browser = MagicMock(is_running=lambda: True, login_state=lambda: None)
+    monkeypatch.setattr(hm, "get_showtimes", lambda *a, **k: [
+        {"start": "1900", "screen": "3관", "free_seats": "5",
+         "scns_no": "003", "scn_sseq": "2"}])
+    monkeypatch.setattr(m, "_open_seat_page", lambda w, s: "login")
+
+    m._process(_watch())
+
+    assert m.status()["last"]["status"] == "로그인필요"
