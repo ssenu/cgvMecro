@@ -826,9 +826,15 @@ def test_count_button_template_renders():
     assert sel.COUNT_BUTTON_TMPL.format(count=2) == 'button[aria-label="2 선택"]'
 
 
+def test_seat_button_by_loc_template_renders():
+    assert sel.SEAT_BUTTON_BY_LOC_TMPL.format(loc_no="00100100230015") == (
+        'button[data-seatlocno="00100100230015"]'
+    )
+
+
 def test_required_selectors_are_non_empty_strings():
-    for name in ("SEAT_PATH", "SEAT_BUTTON", "COUNT_WRAP", "MODAL",
-                 "MODAL_CLOSE_TEXT", "WHEELCHAIR_TEXT", "SEAT_HELD_TEXT", "CTA_TEXT"):
+    for name in ("SEAT_PATH", "SEAT_BUTTON", "SEAT_BUTTON_BY_LOC_TMPL", "COUNT_WRAP",
+                 "MODAL", "MODAL_CLOSE_TEXT", "WHEELCHAIR_TEXT", "SEAT_HELD_TEXT", "CTA_TEXT"):
         value = getattr(sel, name)
         assert isinstance(value, str) and value
 ```
@@ -864,6 +870,8 @@ SEAT_PATH = "/cnm/selectVisitorCnt"
 
 # 좌석 버튼. 텍스트가 좌석명("H12"), disabled면 선택 불가 (확인: 2026-08-23)
 SEAT_BUTTON = "button[data-seatlocno]"
+# 특정 좌석 하나를 고르는 셀렉터. loc_no는 좌석 지도 API의 seatLocNo (확인: 2026-08-26)
+SEAT_BUTTON_BY_LOC_TMPL = 'button[data-seatlocno="{loc_no}"]' 
 
 # 인원 선택 박스 — 자동 생성 클래스명이라 배포 시 바뀔 수 있다 (확인: 2026-08-23)
 COUNT_WRAP = "div.numberChoice_NumberWrap__JKTv1"
@@ -1233,7 +1241,7 @@ class Hunter:
 
     def _click_seat(self, seat: dict) -> None:
         self.page.locator(
-            f'{sel.SEAT_BUTTON}[data-seatlocno="{seat["loc_no"]}"]'
+            sel.SEAT_BUTTON_BY_LOC_TMPL.format(loc_no=seat["loc_no"])
         ).first.click(timeout=5000)
 
     def _click_cta(self) -> None:
