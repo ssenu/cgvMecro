@@ -303,6 +303,10 @@
       <span id="interval-display" class="interval-value" title="클릭해서 수정">-</span>
       <input id="interval-input" class="interval-input" type="number" min="5" style="display:none">
     </div>
+    <div class="interval-box">
+      <button id="browser-btn" class="primary" type="button">브라우저 열기</button>
+      <span id="hunt-status">헌팅 대기</span>
+    </div>
   </header>
 
   <div id="error-banner">
@@ -414,6 +418,8 @@
   var addBtn = document.getElementById("add-btn");
   var intervalDisplay = document.getElementById("interval-display");
   var intervalInput = document.getElementById("interval-input");
+  var browserBtn = document.getElementById("browser-btn");
+  var huntStatus = document.getElementById("hunt-status");
 
   function showError(msg) {
     errorMessage.textContent = msg;
@@ -425,6 +431,36 @@
   }
 
   errorClose.addEventListener("click", hideError);
+
+  function loadHunt() {
+    fetch("/api/hunt")
+      .then(function (res) {
+        if (!res.ok) throw new Error("헌팅 상태를 불러오지 못했습니다.");
+        return res.json();
+      })
+      .then(function (h) {
+        var parts = [h.browser ? "브라우저 켜짐" : "브라우저 꺼짐"];
+        if (h.active) parts.push("헌팅 중");
+        if (h.queued > 0) parts.push("대기 " + h.queued);
+        if (h.last && h.last.status) {
+          parts.push("최근: " + h.last.status +
+            (h.last.seats && h.last.seats.length ? " " + h.last.seats.join(",") : ""));
+        }
+        huntStatus.textContent = parts.join(" · ");
+      })
+      .catch(function (err) { showError(err.message); });
+  }
+
+  browserBtn.addEventListener("click", function () {
+    browserBtn.disabled = true;
+    fetch("/api/hunt/browser", { method: "POST" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("브라우저를 열지 못했습니다.");
+        huntStatus.textContent = "브라우저 여는 중…";
+      })
+      .catch(function (err) { showError(err.message); })
+      .finally(function () { browserBtn.disabled = false; });
+  });
 
   function todayYmd() {
     var d = new Date();
@@ -500,6 +536,22 @@
       tr.appendChild(checkedTd);
 
       var actionTd = document.createElement("td");
+      if (w.hunt_enabled) {
+        var huntBtn = document.createElement("button");
+        huntBtn.className = "delete-btn";
+        huntBtn.textContent = "지금 헌팅";
+        huntBtn.addEventListener("click", function () {
+          huntBtn.disabled = true;
+          fetch("/api/hunt/" + w.id, { method: "POST" })
+            .then(function (res) {
+              if (!res.ok) throw new Error("헌팅을 시작하지 못했습니다.");
+              loadHunt();
+            })
+            .catch(function (err) { showError(err.message); })
+            .finally(function () { huntBtn.disabled = false; });
+        });
+        actionTd.appendChild(huntBtn);
+      }
       var delBtn = document.createElement("button");
       delBtn.type = "button";
       delBtn.className = "delete-btn";
@@ -706,8 +758,10 @@
   loadMovies();
   loadTheaters();
   loadSettings();
+  loadHunt();
 
   setInterval(loadWatches, 5000);
+  setInterval(loadHunt, 5000);
 })();
 </script>
 </body>

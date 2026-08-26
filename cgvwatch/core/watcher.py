@@ -39,6 +39,7 @@ def check_watch(
     notify: Callable = send_open_alert,
     notify_error: Callable = send_error_alert,
     now: Optional[str] = None,
+    on_open: Optional[Callable] = None,
 ) -> Watch:
     now = now or datetime.now().strftime("%Y-%m-%d %H:%M")
     try:
@@ -66,6 +67,11 @@ def check_watch(
             logger.exception("알림 발송 실패: %s", watch.mov_nm)
             return _to_error(watch, settings, f"알림 발송 실패: {exc}", now, notify_error)
         logger.info("예매 오픈 감지·알림 발송: %s %s %s", watch.mov_nm, watch.site_nm, watch.target_ymd)
+        if on_open and watch.hunt_enabled:
+            try:
+                on_open(watch)
+            except Exception:
+                logger.exception("헌트 요청 실패: %s", watch.mov_nm)
         return replace(watch, was_open=True, status=Status.OPEN, last_checked=now, last_error="")
 
     status = Status.OPEN if watch.was_open else Status.WAITING
@@ -80,11 +86,13 @@ class WatcherThread(threading.Thread):
         client,
         get_state: Callable,  # () -> tuple[Settings, list[Watch], set_watch_fn]
         on_update: Optional[Callable[[Watch], None]] = None,
+        on_open: Optional[Callable] = None,
     ) -> None:
         super().__init__(daemon=True, name="cgvwatch-watcher")
         self._client = client
         self._get_state = get_state
         self._on_update = on_update
+        self._on_open = on_open
         self._stop = threading.Event()
 
     def stop(self) -> None:
@@ -96,7 +104,7 @@ class WatcherThread(threading.Thread):
             if self._stop.is_set():
                 break
             try:
-                updated = check_watch(self._client, watch, settings)
+                updated = check_watch(self._client, watch, settings, on_open=self._on_open)
                 set_watch(updated)
                 if self._on_update:
                     self._on_update(updated)

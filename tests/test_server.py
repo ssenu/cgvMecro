@@ -153,3 +153,15 @@ def test_add_watch_rejects_bad_preferred_time(api):
     body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산",
             "target_ymd": "20260729", "preferred_time": "7pm"}
     assert tc.post("/api/watches", json=body).status_code == 422
+
+
+def test_hunt_now_404_for_unknown_watch(api):
+    tc, _, _ = api
+    assert tc.post("/api/hunt/nope").status_code == 404
+
+
+def test_hunt_status_endpoint(api):
+    tc, _, _ = api
+    body = tc.get("/api/hunt").json()
+    assert body["browser"] is False
+    assert body["queued"] == 0
