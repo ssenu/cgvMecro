@@ -25,12 +25,17 @@ class BrowserManager:
             return
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         self._pw = sync_playwright().start()
-        self._context = self._pw.chromium.launch_persistent_context(
-            user_data_dir=str(self.profile_dir),
-            headless=False,
-            viewport=None,
-            args=["--start-maximized"],
-        )
+        try:
+            self._context = self._pw.chromium.launch_persistent_context(
+                user_data_dir=str(self.profile_dir),
+                headless=False,
+                viewport=None,
+                args=["--start-maximized"],
+            )
+        except Exception:
+            self._pw.stop()
+            self._pw = None
+            raise
         if not self._context.pages:
             self._context.new_page()
         logger.info("브라우저 시작: %s", self.profile_dir)
@@ -56,14 +61,27 @@ class BrowserManager:
         return self._context.pages[0] if self._context.pages else self._context.new_page()
 
     def is_logged_in(self) -> bool:
-        """CGV 첫 화면에서 로그인 문구가 안 보이면 로그인된 것으로 본다."""
+        """CGV 첫 화면의 로그인/로그아웃 버튼 텍스트로 로그인 상태를 판정한다.
+
+        2026-08-26에 실제 DOM을 확인한 결과, 로그아웃 상태에서는
+        `sel.AUTH_BUTTON`에 해당하는 버튼이 정확히 하나 있고 텍스트가
+        "로그인"이었다. 로그인 상태의 DOM은 아직 확인하지 못했으므로,
+        버튼 텍스트가 "로그아웃"이면 로그인된 것으로 간주한다.
+        어느 쪽도 아니면(판정 불가) 보수적으로 로그인되지 않은 것으로 본다.
+        """
         if not self._context:
             return False
         page = self.page()
         try:
-            page.goto("https://cgv.co.kr/", wait_until="domcontentloaded", timeout=20000)
-            body = page.inner_text("body", timeout=5000)
+            page.goto(sel.HOME_URL, wait_until="domcontentloaded", timeout=20000)
+            texts = page.locator(sel.AUTH_BUTTON).all_inner_texts()
         except Exception:
             logger.exception("로그인 상태 확인 실패")
             return False
-        return sel.LOGIN_MARK not in body
+        texts = [t.strip() for t in texts]
+        if any(t == sel.LOGOUT_TEXT for t in texts):
+            return True
+        if any(t == sel.LOGIN_TEXT for t in texts):
+            return False
+        logger.warning("로그인 상태를 판정할 수 없습니다 (버튼 텍스트: %s)", texts)
+        return False
