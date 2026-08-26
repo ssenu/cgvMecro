@@ -84,3 +84,51 @@ def send_created_alert(
 ) -> None:
     """감시 등록 알림 발송. 미설정/HTTP 오류 시 예외를 던진다(호출부에서 무시 가능)."""
     _send(build_created_message(watch), post)
+
+
+def send_seat_secured(
+    watch: Watch,
+    settings: Settings,
+    seats: list[str],
+    showtime: dict,
+    post: Callable = requests.post,
+) -> None:
+    """좌석 확보 알림. 결제는 사람이 해야 한다는 것을 분명히 적는다."""
+    ymd = watch.target_ymd
+    date = f"{ymd[4:6]}/{ymd[6:8]}"
+    start = showtime.get("start", "")
+    hhmm = f"{start[:2]}:{start[2:]}" if len(start) == 4 else start
+    content = (
+        f"🎟️ **좌석 확보! {watch.mov_nm}**\n"
+        f"{watch.site_nm} {date} {hhmm} {showtime.get('screen', '')}\n"
+        f"좌석: {', '.join(seats)}\n"
+        f"⏳ 브라우저에서 **결제를 직접 진행**해 주세요. 시간이 지나면 좌석이 풀립니다."
+    )
+    _send(content, post)
+
+
+def send_structure_warning(
+    watch: Watch,
+    settings: Settings,
+    detail: str,
+    post: Callable = requests.post,
+) -> None:
+    """CGV 화면 구조가 바뀐 것으로 의심될 때."""
+    content = (
+        f"🔧 **화면 구조 변경 의심** ({watch.mov_nm} / {watch.site_nm})\n"
+        f"{detail}\n"
+        f"selectors.py를 최신 화면에 맞게 확인해야 합니다."
+    )
+    _send(content, post)
+
+
+def send_login_required(
+    settings: Settings,
+    post: Callable = requests.post,
+) -> None:
+    """브라우저 세션이 없어 헌팅을 시작할 수 없을 때."""
+    _send(
+        "🔑 **CGV 로그인이 필요합니다**\n"
+        "웹 UI에서 브라우저를 열고 로그인해 주세요. 좌석 확보가 대기 중입니다.",
+        post,
+    )
