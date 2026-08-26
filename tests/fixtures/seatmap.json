@@ -1,0 +1,21 @@
+{
+  "resultCode": "0",
+  "items": [
+    {
+      "seats": [
+        {"seatLocNo": "L001", "seatRowNm": "A", "seatNo": "1", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0001", "ycoordStartVal": "0001"},
+        {"seatLocNo": "L002", "seatRowNm": "A", "seatNo": "2", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0003", "ycoordStartVal": "0001"},
+        {"seatLocNo": "L003", "seatRowNm": "A", "seatNo": "3", "seatStusCd": "01", "seatSaleYn": "N", "xcoordStartVal": "0005", "ycoordStartVal": "0001"},
+        {"seatLocNo": "L004", "seatRowNm": "A", "seatNo": "4", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0007", "ycoordStartVal": "0001"},
+        {"seatLocNo": "L005", "seatRowNm": "B", "seatNo": "1", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0001", "ycoordStartVal": "0003"},
+        {"seatLocNo": "L006", "seatRowNm": "B", "seatNo": "2", "seatStusCd": "04", "seatSaleYn": "Y", "xcoordStartVal": "0003", "ycoordStartVal": "0003"},
+        {"seatLocNo": "L007", "seatRowNm": "B", "seatNo": "3", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0005", "ycoordStartVal": "0003"},
+        {"seatLocNo": "L008", "seatRowNm": "B", "seatNo": "4", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0007", "ycoordStartVal": "0003"},
+        {"seatLocNo": "L009", "seatRowNm": "C", "seatNo": "1", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0001", "ycoordStartVal": "0005"},
+        {"seatLocNo": "L010", "seatRowNm": "C", "seatNo": "2", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0003", "ycoordStartVal": "0005"},
+        {"seatLocNo": "L011", "seatRowNm": "C", "seatNo": "3", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0005", "ycoordStartVal": "0005"},
+        {"seatLocNo": "L012", "seatRowNm": "C", "seatNo": "4", "seatStusCd": "00", "seatSaleYn": "Y", "xcoordStartVal": "0007", "ycoordStartVal": "0005"}
+      ]
+    }
+  ]
+}

@@ -22,6 +22,8 @@ def get_showtimes(client: CGVClient, site_no: str, mov_no: str, ymd: str) -> lis
             "start": row.get("scnsrtTm", ""),
             "screen": row.get("scnsNm", ""),
             "free_seats": row.get("frSeatCnt", ""),
+            "scns_no": row.get("scnsNo", ""),
+            "scn_sseq": row.get("scnSseq", ""),
         }
         for row in data
         if row.get("scnsrtTm")

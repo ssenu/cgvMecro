@@ -834,7 +834,8 @@ def test_seat_button_by_loc_template_renders():
 
 def test_required_selectors_are_non_empty_strings():
     for name in ("SEAT_PATH", "SEAT_BUTTON", "SEAT_BUTTON_BY_LOC_TMPL", "COUNT_WRAP",
-                 "MODAL", "MODAL_CLOSE_TEXT", "WHEELCHAIR_TEXT", "SEAT_HELD_TEXT", "CTA_TEXT"):
+                 "MODAL", "MODAL_CLOSE_TEXT", "WHEELCHAIR_TEXT", "SEAT_HELD_TEXT", "CTA_TEXT",
+                 "SHOWTIME_BUTTON", "LOGIN_REQUIRED_TEXT"):
         value = getattr(sel, name)
         assert isinstance(value, str) and value
 ```
@@ -872,6 +873,13 @@ SEAT_PATH = "/cnm/selectVisitorCnt"
 SEAT_BUTTON = "button[data-seatlocno]"
 # 특정 좌석 하나를 고르는 셀렉터. loc_no는 좌석 지도 API의 seatLocNo (확인: 2026-08-26)
 SEAT_BUTTON_BY_LOC_TMPL = 'button[data-seatlocno="{loc_no}"]' 
+
+# 회차(상영 시각) 버튼 — 자동 생성 클래스명이라 배포 시 바뀔 수 있다 (확인: 2026-08-26)
+# 버튼 텍스트 예: "15:40-18:15 47/123석 2관 (Laser)". 시각은 안쪽 span에 들어있다.
+SHOWTIME_BUTTON = "button.screenInfo_timeLink__45VfR"
+
+# 로그인 없이 회차를 누르면 뜨는 안내 모달의 문구 (확인: 2026-08-26)
+LOGIN_REQUIRED_TEXT = "로그인이 필요한"
 
 # 인원 선택 박스 — 자동 생성 클래스명이라 배포 시 바뀔 수 있다 (확인: 2026-08-23)
 COUNT_WRAP = "div.numberChoice_NumberWrap__JKTv1"

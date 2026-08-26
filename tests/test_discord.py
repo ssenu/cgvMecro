@@ -98,3 +98,41 @@ def test_build_message_mentions_screen_filter():
               site_nm="용산아이파크몰", target_ymd="20260725", screen_filter="IMAX")
     msg = discord.build_message(w)
     assert "IMAX" in msg
+
+
+def _showtime():
+    return {"start": "1900", "screen": "IMAX관", "free_seats": "3",
+            "scns_no": "018", "scn_sseq": "2"}
+
+
+def test_send_seat_secured_includes_seats_and_time(monkeypatch):
+    monkeypatch.setenv("DISCORD_WEBHOOK_URL", "https://discord.test/hook")
+    post = MagicMock(return_value=MagicMock(status_code=204))
+
+    discord.send_seat_secured(_watch(), Settings(), ["H12", "H13"], _showtime(), post=post)
+
+    content = post.call_args[1]["json"]["content"]
+    assert "H12" in content and "H13" in content
+    assert "19:00" in content
+    assert "IMAX관" in content
+    assert "결제" in content
+
+
+def test_send_structure_warning_includes_detail(monkeypatch):
+    monkeypatch.setenv("DISCORD_WEBHOOK_URL", "https://discord.test/hook")
+    post = MagicMock(return_value=MagicMock(status_code=204))
+
+    discord.send_structure_warning(_watch(), Settings(), "좌석 버튼을 찾지 못했습니다.", post=post)
+
+    content = post.call_args[1]["json"]["content"]
+    assert "구조" in content
+    assert "좌석 버튼" in content
+
+
+def test_send_login_required(monkeypatch):
+    monkeypatch.setenv("DISCORD_WEBHOOK_URL", "https://discord.test/hook")
+    post = MagicMock(return_value=MagicMock(status_code=204))
+
+    discord.send_login_required(Settings(), post=post)
+
+    assert "로그인" in post.call_args[1]["json"]["content"]

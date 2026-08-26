@@ -28,15 +28,19 @@ def test_get_showtimes_parses_and_sorts():
     from cgvwatch.cgv.showtimes import get_showtimes
     client = MagicMock()
     client.get_json.return_value = [
-        {"scnsrtTm": "1550", "scnsNm": "1관 (Laser)", "frSeatCnt": "34"},
-        {"scnsrtTm": "0900", "scnsNm": "IMAX관", "frSeatCnt": "28"},
+        {"scnsrtTm": "1550", "scnsNm": "1관 (Laser)", "frSeatCnt": "34",
+         "scnsNo": "001", "scnSseq": "3"},
+        {"scnsrtTm": "0900", "scnsNm": "IMAX관", "frSeatCnt": "28",
+         "scnsNo": "018", "scnSseq": "1"},
     ]
 
     rows = get_showtimes(client, "0056", "30001192", "20260819")
 
     assert rows == [
-        {"start": "0900", "screen": "IMAX관", "free_seats": "28"},
-        {"start": "1550", "screen": "1관 (Laser)", "free_seats": "34"},
+        {"start": "0900", "screen": "IMAX관", "free_seats": "28",
+         "scns_no": "018", "scn_sseq": "1"},
+        {"start": "1550", "screen": "1관 (Laser)", "free_seats": "34",
+         "scns_no": "001", "scn_sseq": "3"},
     ]
     endpoint, params = client.get_json.call_args[0]
     assert endpoint == "searchSchByMov"

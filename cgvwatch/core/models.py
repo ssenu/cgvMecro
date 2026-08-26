@@ -19,6 +19,10 @@ class Watch:
     site_nm: str
     target_ymd: str  # YYYYMMDD
     screen_filter: str = ""  # 관 이름 키워드 (예: IMAX). 빈 값이면 아무 관이나 열리면 알림
+    hunt_enabled: bool = False  # 좌석 확보까지 자동으로 진행할지
+    seat_count: int = 1  # 1 또는 2
+    row_offset: int = 1  # 중앙 기준 뒤쪽으로 몇 열
+    preferred_time: str = ""  # HHMM, 빈 값이면 가장 이른 회차
     status: str = Status.WAITING
     was_open: bool = False
     last_checked: str = ""
