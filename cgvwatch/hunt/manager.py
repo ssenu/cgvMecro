@@ -135,6 +135,25 @@ class HuntManager(threading.Thread):
             self._browser.start()
         return self._browser.is_running()
 
+    def _dismiss_ads(self, page) -> None:
+        """광고 팝업을 닫는다. 로그인 안내 모달은 건드리지 않는다."""
+        import re as _re
+        for _ in range(3):
+            try:
+                modal = page.locator(sel.MODAL)
+                if not modal.count():
+                    return
+                text = modal.first.inner_text(timeout=2000)
+                if sel.LOGIN_REQUIRED_TEXT in text:
+                    return  # 로그인 안내는 호출부가 판정해야 한다
+                modal.first.get_by_role(
+                    "button", name=_re.compile(sel.AD_DISMISS_TEXT)
+                ).first.click(timeout=2000)
+                logger.info("광고 팝업을 닫았습니다: %s", " ".join(text.split())[:40])
+                page.wait_for_timeout(400)
+            except Exception:
+                return
+
     def _open_seat_page(self, watch: Watch, showtime: dict) -> str:
         """예매 페이지 → 회차 클릭 → 좌석 화면. "ok" | "login" | "fail"."""
         page = self._browser.page()
@@ -145,6 +164,8 @@ class HuntManager(threading.Thread):
             site_nm=quote(watch.site_nm),
         )
         page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        page.wait_for_timeout(1500)  # 광고 팝업이 뜰 시간을 준다
+        self._dismiss_ads(page)
         start = showtime.get("start", "")
         label = f"{start[:2]}:{start[2:]}" if len(start) == 4 else start
         try:

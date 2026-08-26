@@ -35,6 +35,10 @@ COUNT_BUTTON_TMPL = 'button[aria-label="{count} 선택"]'
 MODAL = ".cgv-modal.active"
 MODAL_CLOSE_TEXT = "확인|닫기"
 
+# CGV 첫 화면·예매 화면에 뜨는 광고 팝업을 닫는 버튼 (확인: 2026-08-26)
+# 광고 오버레이가 회차 버튼 클릭을 가로채므로 먼저 치워야 한다.
+AD_DISMISS_TEXT = "오늘은 그만 보기|닫기|확인"
+
 # 모달 본문에 이 단어가 있으면 그 좌석은 블랙리스트 (확인: 2026-08-23)
 WHEELCHAIR_TEXT = "휠체어|장애인"
 
