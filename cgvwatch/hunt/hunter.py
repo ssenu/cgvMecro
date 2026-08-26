@@ -76,7 +76,8 @@ class Hunter:
         return False
 
     def _seat_button_count(self) -> int:
-        return self.page.locator(sel.SEAT_BUTTON).count()
+        """보이는 좌석 버튼 수. 숨겨진 사본이 함께 있어서 visible로 거른다."""
+        return self.page.locator(sel.SEAT_BUTTON + sel.VISIBLE_SUFFIX).count()
 
     def _seat_held_state(self) -> Optional[bool]:
         """좌석 확보 문구가 있는지 확인한다. 확인할 수 없으면 None."""
@@ -97,9 +98,11 @@ class Hunter:
         self.page.locator(selector).first.click(timeout=5000)
 
     def _click_seat(self, seat: dict) -> None:
-        self.page.locator(
-            sel.SEAT_BUTTON_BY_LOC_TMPL.format(loc_no=seat["loc_no"])
-        ).first.click(timeout=5000)
+        target = self.page.locator(
+            sel.SEAT_BUTTON_BY_LOC_TMPL.format(loc_no=seat["loc_no"]) + sel.VISIBLE_SUFFIX
+        ).first
+        target.scroll_into_view_if_needed(timeout=5000)
+        target.click(timeout=8000)
 
     def _click_cta(self) -> None:
         self.page.get_by_role("button", name=sel.CTA_TEXT).first.click(timeout=5000)

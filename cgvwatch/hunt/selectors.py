@@ -20,6 +20,10 @@ SEAT_BUTTON = "button[data-seatlocno]"
 # 특정 좌석 하나를 고르는 셀렉터. loc_no는 좌석 지도 API의 seatLocNo (확인: 2026-08-26)
 SEAT_BUTTON_BY_LOC_TMPL = 'button[data-seatlocno="{loc_no}"]'
 
+# 좌석 버튼이 좌석 수의 2배로 잡힌다(624석 관에서 1248개, 확인: 2026-08-26).
+# 숨겨진 사본이 함께 있어서, 클릭할 때는 보이는 것만 골라야 타임아웃이 안 난다.
+VISIBLE_SUFFIX = " >> visible=true"
+
 # 회차(상영 시각) 버튼 — 자동 생성 클래스명이라 배포 시 바뀔 수 있다 (확인: 2026-08-26)
 # 버튼 텍스트 예: "15:40-18:15 47/123석 2관 (Laser)". 시각은 안쪽 span에 들어있다.
 SHOWTIME_BUTTON = "button.screenInfo_timeLink__45VfR"

@@ -75,6 +75,9 @@ class HuntManager(threading.Thread):
             info["modal_count"] = modal.count()
             info["modal_text"] = modal.first.inner_text(timeout=2000)[:200] if modal.count() else ""
             info["seat_buttons"] = page.locator(sel.SEAT_BUTTON).count()
+            info["seat_buttons_visible"] = page.locator(
+                sel.SEAT_BUTTON + sel.VISIBLE_SUFFIX
+            ).count()
             info["count_wrap"] = page.locator(sel.COUNT_WRAP).count()
             info["showtime_buttons"] = page.locator(sel.SHOWTIME_BUTTON).count()
             info["cta"] = page.get_by_role("button", name=sel.CTA_TEXT).count()
