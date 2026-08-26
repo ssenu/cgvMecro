@@ -16,3 +16,10 @@ def test_notify_desktop_runs_powershell():
 def test_notify_desktop_swallows_errors():
     runner = MagicMock(side_effect=OSError("powershell 없음"))
     notify_desktop("제목", "내용", runner=runner)  # 예외가 나면 안 된다
+
+
+def test_notify_desktop_swallows_bad_arguments():
+    """제목·내용이 문자열이 아니어도 예외가 밖으로 나가면 안 된다."""
+    runner = MagicMock()
+    notify_desktop(None, None, runner=runner)  # 예외가 나면 실패
+    runner.assert_not_called()

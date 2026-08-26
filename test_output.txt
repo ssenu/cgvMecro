@@ -1,0 +1,113 @@
+[1m============================= test session starts =============================[0m
+platform win32 -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0 -- C:\MyCode\cgvMecro\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\MyCode\cgvMecro
+configfile: pyproject.toml
+plugins: anyio-4.14.2, mock-3.15.1
+[1mcollecting ... [0mcollected 97 items
+
+tests/test_client.py::test_get_json_injects_cocd_and_returns_data [32mPASSED[0m[33m [  1%][0m
+tests/test_client.py::test_get_json_raises_on_nonzero_status_code [32mPASSED[0m[33m [  2%][0m
+tests/test_client.py::test_get_json_raises_on_http_error [32mPASSED[0m[33m          [  3%][0m
+tests/test_client.py::test_client_sends_browser_like_headers [32mPASSED[0m[33m      [  4%][0m
+tests/test_desktop.py::test_notify_desktop_runs_powershell [32mPASSED[0m[33m        [  5%][0m
+tests/test_desktop.py::test_notify_desktop_swallows_errors [32mPASSED[0m[33m        [  6%][0m
+tests/test_detect.py::test_evaluate_true_on_first_open [32mPASSED[0m[33m            [  7%][0m
+tests/test_detect.py::test_evaluate_false_when_target_not_open_yet [32mPASSED[0m[33m [  8%][0m
+tests/test_detect.py::test_evaluate_false_when_already_open_no_duplicate [32mPASSED[0m[33m [  9%][0m
+tests/test_detect.py::test_default_status_is_waiting [32mPASSED[0m[33m              [ 10%][0m
+tests/test_detect.py::test_has_screen_matches_substring_case_insensitive [32mPASSED[0m[33m [ 11%][0m
+tests/test_detect.py::test_has_screen_empty_keyword_is_always_true [32mPASSED[0m[33m [ 12%][0m
+tests/test_discord.py::test_build_message_contains_key_fields [32mPASSED[0m[33m     [ 13%][0m
+tests/test_discord.py::test_send_open_alert_posts_to_webhook [32mPASSED[0m[33m      [ 14%][0m
+tests/test_discord.py::test_send_open_alert_raises_without_webhook_url [32mPASSED[0m[33m [ 15%][0m
+tests/test_discord.py::test_send_open_alert_raises_on_http_error [32mPASSED[0m[33m  [ 16%][0m
+tests/test_discord.py::test_build_created_message_contains_key_fields [32mPASSED[0m[33m [ 17%][0m
+tests/test_discord.py::test_send_created_alert_posts_to_webhook [32mPASSED[0m[33m   [ 18%][0m
+tests/test_discord.py::test_send_created_alert_raises_without_webhook_url [32mPASSED[0m[33m [ 19%][0m
+tests/test_discord.py::test_send_error_alert_posts_reason [32mPASSED[0m[33m         [ 20%][0m
+tests/test_discord.py::test_build_message_contains_booking_deep_link [32mPASSED[0m[33m [ 21%][0m
+tests/test_discord.py::test_build_message_mentions_screen_filter [32mPASSED[0m[33m  [ 22%][0m
+tests/test_discord.py::test_send_seat_secured_includes_seats_and_time [32mPASSED[0m[33m [ 23%][0m
+tests/test_discord.py::test_send_structure_warning_includes_detail [32mPASSED[0m[33m [ 24%][0m
+tests/test_discord.py::test_send_login_required [32mPASSED[0m[33m                   [ 25%][0m
+tests/test_hunter.py::test_hunter_secures_seat_when_free [32mPASSED[0m[33m          [ 26%][0m
+tests/test_hunter.py::test_hunter_retries_next_seat_when_modal_blocks [32mPASSED[0m[33m [ 27%][0m
+tests/test_hunter.py::test_hunter_blacklists_wheelchair_seat_from_modal [32mPASSED[0m[33m [ 28%][0m
+tests/test_hunter.py::test_hunter_stops_cycle_when_modal_stuck [32mPASSED[0m[33m    [ 29%][0m
+tests/test_hunter.py::test_hunter_preflight_guard_stops_when_seat_held_unknown [32mPASSED[0m[33m [ 30%][0m
+tests/test_hunter.py::test_hunter_reports_structure_change_when_no_seat_buttons [32mPASSED[0m[33m [ 31%][0m
+tests/test_hunter.py::test_hunter_returns_failed_when_no_free_seats [32mPASSED[0m[33m [ 32%][0m
+tests/test_hunter.py::test_hunter_stops_when_asked [32mPASSED[0m[33m                [ 34%][0m
+tests/test_hunter.py::test_hunter_refuses_when_seat_already_held [32mPASSED[0m[33m  [ 35%][0m
+tests/test_movies.py::test_get_movies_parses_list [32mPASSED[0m[33m                 [ 36%][0m
+tests/test_seatpick.py::test_center_of_returns_middle_row_and_number [32mPASSED[0m[33m [ 37%][0m
+tests/test_seatpick.py::test_center_of_without_offset [32mPASSED[0m[33m             [ 38%][0m
+tests/test_seatpick.py::test_pick_seats_prefers_center_after_offset [32mPASSED[0m[33m [ 39%][0m
+tests/test_seatpick.py::test_pick_seats_excludes_front_rows [32mPASSED[0m[33m       [ 40%][0m
+tests/test_seatpick.py::test_pick_seats_only_free_seats [32mPASSED[0m[33m           [ 41%][0m
+tests/test_seatpick.py::test_pick_seats_respects_blacklist [32mPASSED[0m[33m        [ 42%][0m
+tests/test_seatpick.py::test_pick_seats_pairs_are_adjacent [32mPASSED[0m[33m        [ 43%][0m
+tests/test_seatpick.py::test_pick_seats_pair_skips_gap [32mPASSED[0m[33m            [ 44%][0m
+tests/test_seatpick.py::test_pick_seats_empty_when_nothing_free [32mPASSED[0m[33m   [ 45%][0m
+tests/test_seats.py::test_get_seat_map_parses_seats [32mPASSED[0m[33m               [ 46%][0m
+tests/test_seats.py::test_get_seat_map_marks_sold_and_holding_as_not_free [32mPASSED[0m[33m [ 47%][0m
+tests/test_seats.py::test_get_seat_map_empty_when_no_items [32mPASSED[0m[33m        [ 48%][0m
+tests/test_seats.py::test_get_seat_map_empty_when_none [32mPASSED[0m[33m            [ 49%][0m
+tests/test_selectors.py::test_booking_url_has_all_params [32mPASSED[0m[33m          [ 50%][0m
+tests/test_selectors.py::test_count_button_template_renders [32mPASSED[0m[33m       [ 51%][0m
+tests/test_selectors.py::test_seat_button_by_loc_template_renders [32mPASSED[0m[33m [ 52%][0m
+tests/test_selectors.py::test_required_selectors_are_non_empty_strings [32mPASSED[0m[33m [ 53%][0m
+tests/test_selectors.py::test_home_url_is_cgv [32mPASSED[0m[33m                     [ 54%][0m
+tests/test_server.py::test_healthz [32mPASSED[0m[33m                                [ 55%][0m
+tests/test_server.py::test_add_list_delete_watch [32mPASSED[0m[33m                  [ 56%][0m
+tests/test_server.py::test_delete_unknown_watch_404 [32mPASSED[0m[33m               [ 57%][0m
+tests/test_server.py::test_settings_roundtrip [32mPASSED[0m[33m                     [ 58%][0m
+tests/test_server.py::test_movies_proxies_cgv [32mPASSED[0m[33m                     [ 59%][0m
+tests/test_server.py::test_theaters_proxies_cgv [32mPASSED[0m[33m                   [ 60%][0m
+tests/test_server.py::test_cgv_error_returns_502 [32mPASSED[0m[33m                  [ 61%][0m
+tests/test_server.py::test_add_watch_sends_created_alert [32mPASSED[0m[33m          [ 62%][0m
+tests/test_server.py::test_add_watch_succeeds_even_if_alert_fails [32mPASSED[0m[33m [ 63%][0m
+tests/test_server.py::test_add_watch_with_screen_filter [32mPASSED[0m[33m           [ 64%][0m
+tests/test_server.py::test_add_watch_with_hunt_options [32mPASSED[0m[33m            [ 65%][0m
+tests/test_server.py::test_add_watch_rejects_bad_seat_count [32mPASSED[0m[33m       [ 67%][0m
+tests/test_server.py::test_add_watch_rejects_bad_preferred_time [32mPASSED[0m[33m   [ 68%][0m
+tests/test_showpick.py::test_pick_showtime_without_filter_returns_earliest [32mPASSED[0m[33m [ 69%][0m
+tests/test_showpick.py::test_pick_showtime_applies_screen_filter [32mPASSED[0m[33m  [ 70%][0m
+tests/test_showpick.py::test_pick_showtime_picks_nearest_to_preferred_time [32mPASSED[0m[33m [ 71%][0m
+tests/test_showpick.py::test_pick_showtime_filter_and_preference_together [32mPASSED[0m[33m [ 72%][0m
+tests/test_showpick.py::test_pick_showtime_none_when_filter_matches_nothing [32mPASSED[0m[33m [ 73%][0m
+tests/test_showpick.py::test_pick_showtime_none_when_empty [32mPASSED[0m[33m        [ 74%][0m
+tests/test_showpick.py::test_pick_showtime_falls_back_when_preferred_time_malformed [32mPASSED[0m[33m [ 75%][0m
+tests/test_showtimes.py::test_get_open_dates_returns_set [32mPASSED[0m[33m          [ 76%][0m
+tests/test_showtimes.py::test_get_open_dates_empty_when_no_data [32mPASSED[0m[33m   [ 77%][0m
+tests/test_showtimes.py::test_get_showtimes_parses_and_sorts [32mPASSED[0m[33m      [ 78%][0m
+tests/test_store.py::test_save_then_load_roundtrip [32mPASSED[0m[33m                [ 79%][0m
+tests/test_store.py::test_load_missing_file_returns_defaults [32mPASSED[0m[33m      [ 80%][0m
+tests/test_store.py::test_default_path_uses_env_var [32mPASSED[0m[33m               [ 81%][0m
+tests/test_store.py::test_default_path_falls_back_to_home [32mPASSED[0m[33m         [ 82%][0m
+tests/test_store.py::test_load_ignores_legacy_keys [32mPASSED[0m[33m                [ 83%][0m
+tests/test_store.py::test_load_ignores_unknown_watch_keys [32mPASSED[0m[33m         [ 84%][0m
+tests/test_theaters.py::test_get_regions_parses_sites [32mPASSED[0m[33m             [ 85%][0m
+tests/test_watcher.py::test_check_watch_notifies_and_marks_open [32mPASSED[0m[33m   [ 86%][0m
+tests/test_watcher.py::test_check_watch_waiting_when_not_open [32mPASSED[0m[33m     [ 87%][0m
+tests/test_watcher.py::test_check_watch_error_sets_error_status [32mPASSED[0m[33m   [ 88%][0m
+tests/test_watcher.py::test_check_watch_open_but_notify_fails_does_not_raise [32mPASSED[0m[33m [ 89%][0m
+tests/test_watcher.py::test_thread_run_once_survives_check_exception [32mPASSED[0m[33m [ 90%][0m
+tests/test_watcher.py::test_thread_stop_interrupts_wait [32mPASSED[0m[33m           [ 91%][0m
+tests/test_watcher.py::test_check_watch_error_logs_cause [32mPASSED[0m[33m          [ 92%][0m
+tests/test_watcher.py::test_check_watch_records_and_clears_last_error [32mPASSED[0m[33m [ 93%][0m
+tests/test_watcher.py::test_check_watch_sends_error_alert_only_on_transition [32mPASSED[0m[33m [ 94%][0m
+tests/test_watcher.py::test_check_watch_error_alert_failure_is_swallowed [32mPASSED[0m[33m [ 95%][0m
+tests/test_watcher.py::test_check_watch_screen_filter_match_alerts [32mPASSED[0m[33m [ 96%][0m
+tests/test_watcher.py::test_check_watch_screen_filter_no_match_keeps_waiting [32mPASSED[0m[33m [ 97%][0m
+tests/test_watcher.py::test_check_watch_screen_filter_showtimes_fail_is_error [32mPASSED[0m[33m [ 98%][0m
+tests/test_watcher.py::test_check_watch_no_screen_filter_skips_showtimes_fetch [32mPASSED[0m[33m [100%][0m
+
+[33m============================== warnings summary ===============================[0m
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\MyCode\cgvMecro\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[33m======================== [32m97 passed[0m, [33m[1m1 warning[0m[33m in 1.73s[0m[33m ========================[0m

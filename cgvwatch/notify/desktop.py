@@ -26,10 +26,10 @@ def _escape(text: str) -> str:
 
 def notify_desktop(title: str, message: str, runner: Callable = subprocess.run) -> None:
     """알림을 한 번 띄운다. 실패해도 예외를 밖으로 내보내지 않는다."""
-    script = _PS_TEMPLATE.format(title=_escape(title), message=_escape(message))
     try:
+        script = _PS_TEMPLATE.format(title=_escape(title), message=_escape(message))
         runner(
-            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+            ["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-NonInteractive", "-Command", script],
             capture_output=True,
             timeout=15,
         )
