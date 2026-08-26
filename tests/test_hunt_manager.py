@@ -180,6 +180,51 @@ def test_process_proceeds_when_login_state_unknown(tmp_path, monkeypatch):
     assert m.status()["last"]["status"] == "회차없음"
 
 
+def test_cancel_active_watch_stops_hunter_and_clears_state(tmp_path):
+    """활성 헌팅을 삭제하면 hunter.stop()이 호출되고 active/last가 정리된다."""
+    m = _manager(tmp_path)
+    hunter = MagicMock()
+    with m._lock:
+        m._active = "1"
+        m._hunter = hunter
+        m._last = {"watch_id": "1", "status": "확보"}
+
+    m.cancel_watch("1")
+
+    hunter.stop.assert_called_once()
+    status = m.status()
+    assert status["last"] == {}
+
+
+def test_cancel_queued_watch_is_never_processed(tmp_path):
+    """대기 중인 감시를 삭제하면 run()이 그 항목을 처리하지 않는다."""
+    m = _manager(tmp_path)
+    processed = []
+    m._process = lambda watch: processed.append(watch.id)
+    m.start()
+    try:
+        assert m.request_hunt(_watch(id="a")) is True
+        assert m.request_hunt(_watch(id="b")) is True
+        m.cancel_watch("b")
+        assert _wait_until(lambda: len(processed) >= 1, timeout=3.0)
+        # 큐가 완전히 비워질 때까지 기다려 "b"가 뒤늦게 처리되지 않았는지 확인한다
+        assert _wait_until(lambda: m.status()["queued"] == 0, timeout=3.0)
+        assert processed == ["a"]
+    finally:
+        m.stop()
+        m.join(timeout=3.0)
+
+
+def test_cancel_never_makes_queued_count_negative(tmp_path):
+    m = _manager(tmp_path)
+    m.request_hunt(_watch(id="a"))
+    m.request_hunt(_watch(id="b"))
+    m.cancel_watch("a")
+    m.cancel_watch("b")
+    m.cancel_watch("a")  # 이미 취소된 것을 다시 취소해도 안전해야 한다
+    assert m.status()["queued"] >= 0
+
+
 def test_process_reports_login_when_cgv_demands_it(tmp_path, monkeypatch):
     """회차를 눌렀을 때 CGV가 로그인을 요구하면 '로그인필요'로 기록한다."""
     import cgvwatch.hunt.manager as hm

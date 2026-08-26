@@ -21,8 +21,12 @@ class BrowserManager:
         self._context = None
 
     def start(self) -> None:
-        if self._context:
+        if self.is_running():
             return
+        if self._context or self._pw:
+            # 상태는 남아 있는데 실제로는 죽어 있다(사용자가 창을 직접 닫은 경우 등).
+            # 새로 띄우기 전에 낡은 상태를 정리한다.
+            self._cleanup()
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         self._pw = sync_playwright().start()
         try:
@@ -36,6 +40,7 @@ class BrowserManager:
             self._pw.stop()
             self._pw = None
             raise
+        self._context.on("close", self._on_context_closed)
         page = self._context.pages[0] if self._context.pages else self._context.new_page()
         try:
             # 빈 탭(about:blank)이 뜨면 사용자가 무엇을 해야 할지 알 수 없다.
@@ -50,14 +55,41 @@ class BrowserManager:
             if self._context:
                 self._context.close()
         finally:
-            self._context = None
-            if self._pw:
-                self._pw.stop()
-                self._pw = None
+            self._cleanup()
             logger.info("브라우저 종료")
 
+    def _on_context_closed(self, *_args) -> None:
+        """사용자가 크롬 창을 직접 닫는 등, 우리가 모르는 사이에 컨텍스트가 죽었을 때 불린다."""
+        logger.info("브라우저 컨텍스트가 닫혔습니다(외부에서 종료됨)")
+
     def is_running(self) -> bool:
-        return self._context is not None
+        """실제로 살아 있는지 확인한다. 죽어 있으면 내부 상태도 함께 정리한다.
+
+        컨텍스트 객체가 남아 있어도(사용자가 창을 직접 닫은 경우) 실제로는
+        죽어 있을 수 있으므로, 방어적으로 pages에 접근해 본다.
+        지속 컨텍스트에 열린 탭이 하나도 없는 것도 "죽었다"로 취급한다 —
+        우리 흐름은 항상 탭을 최소 하나 열어 두기 때문이다.
+        """
+        if self._context is None:
+            return False
+        try:
+            alive = len(self._context.pages) > 0
+        except Exception:
+            alive = False
+        if not alive:
+            self._cleanup()
+            return False
+        return True
+
+    def _cleanup(self) -> None:
+        """죽었거나 낡은 상태를 정리한다. Playwright 드라이버가 살아 있으면 멈춘다."""
+        self._context = None
+        if self._pw is not None:
+            try:
+                self._pw.stop()
+            except Exception:
+                logger.warning("Playwright 드라이버 정리 실패(무시)", exc_info=True)
+            self._pw = None
 
     def page(self):
         """첫 번째 탭. 브라우저가 꺼져 있으면 RuntimeError."""

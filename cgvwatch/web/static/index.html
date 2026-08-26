@@ -503,6 +503,11 @@
   modeOnopenBtn.addEventListener("click", function () { setMode("onopen"); });
   setMode("onopen");
 
+  function watchExists(id) {
+    if (!id) return false;
+    return lastWatches.some(function (w) { return w.id === id; });
+  }
+
   function showError(msg) {
     errorMessage.textContent = msg;
     errorBanner.classList.add("visible");
@@ -523,9 +528,9 @@
       .then(function (h) {
         lastHunt = h;
         var parts = [h.browser ? "브라우저 켜짐" : "브라우저 꺼짐"];
-        if (h.active) parts.push("헌팅 중");
+        if (h.active && watchExists(h.active)) parts.push("헌팅 중");
         if (h.queued > 0) parts.push("대기 " + h.queued);
-        if (h.last && h.last.status) {
+        if (h.last && h.last.status && watchExists(h.last.watch_id)) {
           parts.push("최근: " + h.last.status +
             (h.last.seats && h.last.seats.length ? " " + h.last.seats.join(",") : ""));
         }
@@ -671,10 +676,10 @@
 
     var huntLine = document.createElement("div");
     huntLine.className = "watch-hunt-line";
-    var isActive = !!(lastHunt && lastHunt.active === w.id);
+    var isActive = !!(lastHunt && lastHunt.active === w.id && watchExists(w.id));
     if (isActive) {
       huntLine.textContent = "헌팅 중";
-    } else if (lastHunt && lastHunt.last && lastHunt.last.watch_id === w.id && lastHunt.last.status) {
+    } else if (lastHunt && lastHunt.last && lastHunt.last.watch_id === w.id && watchExists(w.id) && lastHunt.last.status) {
       var seatsText = lastHunt.last.seats && lastHunt.last.seats.length
         ? " " + lastHunt.last.seats.join(", ") : "";
       huntLine.textContent = "마지막 헌팅 결과: " + lastHunt.last.status + seatsText;

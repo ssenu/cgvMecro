@@ -36,6 +36,7 @@ class HuntManager(threading.Thread):
         self._queue: "queue.Queue[Watch]" = queue.Queue()
         self._lock = threading.Lock()
         self._queued_ids: set[str] = set()
+        self._cancelled: set[str] = set()
         self._active: Optional[str] = None
         self._last: dict = {}
         self._hunter: Optional[Hunter] = None
@@ -96,6 +97,18 @@ class HuntManager(threading.Thread):
     def stop_hunt(self) -> None:
         with self._lock:
             hunter = self._hunter
+        if hunter:
+            hunter.stop()
+
+    def cancel_watch(self, watch_id: str) -> None:
+        """감시가 삭제됐을 때 호출한다. 대기/진행 중인 헌팅을 모두 정리한다."""
+        with self._lock:
+            self._cancelled.add(watch_id)
+            self._queued_ids.discard(watch_id)
+            is_active = self._active == watch_id
+            hunter = self._hunter if is_active else None
+            if self._last.get("watch_id") == watch_id:
+                self._last = {}
         if hunter:
             hunter.stop()
 
@@ -302,6 +315,11 @@ class HuntManager(threading.Thread):
                 except queue.Empty:
                     continue
                 with self._lock:
+                    if watch.id in self._cancelled:
+                        # 대기 중이던 감시가 삭제됐다 — 처리하지 않고 넘어간다.
+                        self._cancelled.discard(watch.id)
+                        self._queued_ids.discard(watch.id)
+                        continue
                     self._active = watch.id
                 try:
                     self._process(watch)
@@ -312,6 +330,7 @@ class HuntManager(threading.Thread):
                     with self._lock:
                         self._active = None
                         self._queued_ids.discard(watch.id)
+                        self._cancelled.discard(watch.id)
         finally:
             self._cleanup_browser()
             logger.info("헌트 매니저 종료")

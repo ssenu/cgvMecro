@@ -142,6 +142,7 @@ def create_app(
     def delete_watch(watch_id: str):
         if not state.remove_watch(watch_id):
             raise HTTPException(404, "해당 감시 항목이 없습니다.")
+        hunt.cancel_watch(watch_id)
 
     @app.get("/api/settings")
     def get_settings():
