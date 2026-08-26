@@ -225,6 +225,62 @@ def test_cancel_never_makes_queued_count_negative(tmp_path):
     assert m.status()["queued"] >= 0
 
 
+def test_cancel_active_watch_keeps_queued_nonnegative(tmp_path):
+    """활성 감시를 취소해도 status()['queued']는 음수가 되면 안 된다.
+
+    cancel_watch는 활성 id를 즉시 _queued_ids에서 지우지만 _active는 hunter가
+    실제로 멈출 때까지 남아 있다 — 단순히 len(_queued_ids) - 1을 하면 여기서
+    -1이 나온다. queued 계산은 active id를 명시적으로 제외해야 한다.
+    """
+    m = _manager(tmp_path)
+    hunter = MagicMock()
+    with m._lock:
+        m._active = "1"
+        m._hunter = hunter
+        m._queued_ids = {"1"}
+
+    m.cancel_watch("1")
+
+    status = m.status()
+    assert status["queued"] >= 0
+    assert status["queued"] == 0
+
+
+def test_cancel_never_queued_watch_leaves_cancelled_bookkeeping_empty(tmp_path):
+    """한 번도 큐에 들어간 적 없는 id를 취소해도 _cancelled에 쌓이면 안 된다.
+
+    run()의 큐 소비 루프만이 _cancelled에서 id를 지워준다. 큐에 들어간 적
+    없는 id를 넣으면 아무도 지워주지 않아 무한히 쌓인다 (결함 3).
+    """
+    m = _manager(tmp_path)
+    with m._lock:
+        m._last = {"watch_id": "never-queued", "status": "확보"}
+
+    m.cancel_watch("never-queued")
+
+    assert m._cancelled == set()
+    assert m.status()["last"] == {}
+
+
+def test_run_loop_updates_cached_browser_flag_on_dead_ping(tmp_path):
+    """run() 루프가 ping()으로 생존을 확인해 캐시된 플래그를 갱신하고,
+    죽었으면 죽은 참조를 버려서 다음 브라우저 열기가 새로 띄우게 한다.
+    """
+    m = _manager(tmp_path)
+    m._process = lambda watch: None
+    dead_browser = MagicMock()
+    dead_browser.ping.return_value = False
+    m._browser = dead_browser
+    m.start()
+    try:
+        assert _wait_until(lambda: m.status()["browser"] is False, timeout=3.0)
+        assert _wait_until(lambda: m._browser is None, timeout=3.0)
+    finally:
+        m.stop()
+        m.join(timeout=3.0)
+    assert not m.is_alive()
+
+
 def test_process_reports_login_when_cgv_demands_it(tmp_path, monkeypatch):
     """회차를 눌렀을 때 CGV가 로그인을 요구하면 '로그인필요'로 기록한다."""
     import cgvwatch.hunt.manager as hm

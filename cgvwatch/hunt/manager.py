@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 import queue
 import threading
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Optional
@@ -41,11 +42,13 @@ class HuntManager(threading.Thread):
         self._last: dict = {}
         self._hunter: Optional[Hunter] = None
         self._browser: Optional[BrowserManager] = None
+        self._browser_alive: bool = False
         self._want_browser = threading.Event()
         self._want_diag = threading.Event()
         self._want_close = threading.Event()
         self._diag: dict = {}
         self._stop = threading.Event()
+        self._last_ping_monotonic: float = 0.0
 
     # --- 외부 API ---
 
@@ -101,10 +104,19 @@ class HuntManager(threading.Thread):
             hunter.stop()
 
     def cancel_watch(self, watch_id: str) -> None:
-        """감시가 삭제됐을 때 호출한다. 대기/진행 중인 헌팅을 모두 정리한다."""
+        """감시가 삭제됐을 때 호출한다. 대기/진행 중인 헌팅을 모두 정리한다.
+
+        `_cancelled`는 run()의 큐 소비 루프가 언젠가 pop해서 discard해 줄
+        항목만 기록해야 한다 — 그렇지 않은 id(한 번도 큐에 들어간 적 없거나
+        이미 처리가 끝난 watch)를 넣으면 아무도 지워주지 않아 무한히 쌓인다.
+        활성 id는 run()의 finally에서 pop될 때까지 _queued_ids에 남아 있으므로,
+        이 멤버십 검사 하나로 "대기 중" 과 "활성" 을 모두 커버한다.
+        """
         with self._lock:
-            self._cancelled.add(watch_id)
-            self._queued_ids.discard(watch_id)
+            will_be_popped = watch_id in self._queued_ids
+            if will_be_popped:
+                self._cancelled.add(watch_id)
+                self._queued_ids.discard(watch_id)
             is_active = self._active == watch_id
             hunter = self._hunter if is_active else None
             if self._last.get("watch_id") == watch_id:
@@ -118,10 +130,15 @@ class HuntManager(threading.Thread):
 
     def status(self) -> dict:
         with self._lock:
+            # 활성 id를 명시적으로 제외해서 센다 (단순히 -1 하면, cancel_watch가
+            # 활성 id를 먼저 _queued_ids에서 지워버린 순서에서 음수가 될 수 있다).
+            queued = sum(1 for wid in self._queued_ids if wid != self._active)
             return {
-                "browser": bool(self._browser and self._browser.is_running()),
+                # 실제 Playwright 왕복(ping())은 이 요청 스레드에서 절대 호출하지
+                # 않는다 — run() 루프가 캐시해 둔 값만 읽는다.
+                "browser": self._browser_alive,
                 "active": self._active or "",
-                "queued": len(self._queued_ids) - (1 if self._active else 0),
+                "queued": queued,
                 "last": dict(self._last),
                 "diag": dict(self._diag),
             }
@@ -281,6 +298,27 @@ class HuntManager(threading.Thread):
             self._notify(send_structure_warning, watch, settings, result.detail)
         self._record(watch, result.status, result.detail, result.seats)
 
+    def _refresh_browser_liveness(self) -> None:
+        """매니저 스레드에서만 호출한다. 실제 왕복(ping())으로 생존을 확인해 캐시한다.
+
+        status()는 이 캐시된 값만 읽는다 — Playwright 객체는 이 스레드에서만
+        건드릴 수 있기 때문이다. 너무 자주 왕복하지 않도록 최소 1초 간격을 둔다.
+        """
+        now = time.monotonic()
+        if now - self._last_ping_monotonic < 1.0:
+            return
+        self._last_ping_monotonic = now
+        if self._browser is None:
+            with self._lock:
+                self._browser_alive = False
+            return
+        alive = self._browser.ping()
+        with self._lock:
+            self._browser_alive = alive
+            if not alive:
+                # 죽은 참조를 버려서 다음 브라우저 열기가 새로 띄우게 한다.
+                self._browser = None
+
     def _cleanup_browser(self) -> None:
         """브라우저는 이 스레드에서만 다뤄야 하므로 run() 종료 시 여기서 정리한다."""
         if self._browser is not None:
@@ -289,6 +327,8 @@ class HuntManager(threading.Thread):
             except Exception:
                 logger.warning("브라우저 정리 실패", exc_info=True)
             self._browser = None
+        with self._lock:
+            self._browser_alive = False
 
     def run(self) -> None:
         logger.info("헌트 매니저 시작")
@@ -310,6 +350,7 @@ class HuntManager(threading.Thread):
                         self._ensure_browser()
                     except Exception:
                         logger.exception("브라우저 실행 실패")
+                self._refresh_browser_liveness()
                 try:
                     watch = self._queue.get(timeout=1.0)
                 except queue.Empty:

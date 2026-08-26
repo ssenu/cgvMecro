@@ -59,7 +59,12 @@ class BrowserManager:
             logger.info("브라우저 종료")
 
     def _on_context_closed(self, *_args) -> None:
-        """사용자가 크롬 창을 직접 닫는 등, 우리가 모르는 사이에 컨텍스트가 죽었을 때 불린다."""
+        """사용자가 크롬 창을 직접 닫는 등, 우리가 모르는 사이에 컨텍스트가 죽었을 때 불린다.
+
+        여기서는 로그만 남긴다. 생존 판정의 진실은 ping()의 실제 왕복이다 —
+        Playwright 클라이언트는 pages 목록을 로컬에 캐시해 두기 때문에,
+        이 이벤트가 오지 않거나 늦게 와도 ping()이 죽음을 잡아낸다.
+        """
         logger.info("브라우저 컨텍스트가 닫혔습니다(외부에서 종료됨)")
 
     def is_running(self) -> bool:
@@ -77,6 +82,29 @@ class BrowserManager:
         except Exception:
             alive = False
         if not alive:
+            self._cleanup()
+            return False
+        return True
+
+    def ping(self) -> bool:
+        """실제로 브라우저와 한 번 왕복해서 살아 있는지 확인한다.
+
+        `is_running()`은 Playwright 클라이언트가 로컬에 캐싱해 둔 pages 목록만
+        보므로, 우리가 띄운 chrome.exe가 이미 죽었어도 True를 돌려줄 수 있다
+        (실제로 확인됨: chrome.exe를 강제 종료해도 is_running()은 True를 유지).
+        ping()은 실제 페이지에 왕복 호출(title())을 던져 이를 잡아낸다.
+        죽어 있으면(예외 또는 탭이 하나도 없으면) _cleanup()으로 내부 상태도 정리한다.
+
+        반드시 Playwright를 소유한 스레드(HuntManager.run 루프)에서만 호출해야 한다.
+        """
+        if self._context is None:
+            return False
+        try:
+            pages = self._context.pages
+            if not pages:
+                raise RuntimeError("열린 탭이 없습니다")
+            pages[0].title()
+        except Exception:
             self._cleanup()
             return False
         return True
