@@ -5,11 +5,14 @@ import logging
 import os
 
 import uvicorn
+from dotenv import load_dotenv
 
 from cgvwatch.web.server import create_app
 
 
 def main() -> None:
+    # .env의 DISCORD_WEBHOOK_URL 등을 환경변수로 올린다. 파일이 없어도 그냥 넘어간다.
+    load_dotenv()
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
