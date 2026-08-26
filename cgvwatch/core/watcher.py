@@ -10,7 +10,11 @@ from typing import Callable, Optional
 from cgvwatch.cgv.showtimes import get_open_dates, get_showtimes
 from cgvwatch.core.detect import evaluate, has_screen
 from cgvwatch.core.models import Settings, Status, Watch
-from cgvwatch.notify.discord import send_error_alert, send_open_alert
+from cgvwatch.notify.discord import (
+    WebhookNotConfigured,
+    send_error_alert,
+    send_open_alert,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +65,13 @@ def check_watch(
                 return replace(watch, status=Status.WAITING, last_checked=now, last_error="")
         try:
             notify(watch, settings)
+        except WebhookNotConfigured:
+            # 보낼 곳이 아예 없는 것은 '실패'가 아니다. 오픈 처리를 계속해서
+            # 좌석 확보(헌팅)까지 이어지게 한다. 웹훅은 나중에 넣어도 된다.
+            logger.info("웹훅 미설정 — 오픈 알림을 건너뜁니다: %s", watch.mov_nm)
         except Exception as exc:
-            # 열렸지만 알림 실패(웹훅 미설정 등) → 앱을 죽이지 않는다.
-            # was_open을 True로 올리지 않아 다음 주기에 재시도한다.
+            # 보낼 곳은 있는데 실패했다(디코 장애 등) → 알림을 놓치지 않도록
+            # was_open을 올리지 않고 다음 주기에 재시도한다.
             logger.exception("알림 발송 실패: %s", watch.mov_nm)
             return _to_error(watch, settings, f"알림 발송 실패: {exc}", now, notify_error)
         logger.info("예매 오픈 감지·알림 발송: %s %s %s", watch.mov_nm, watch.site_nm, watch.target_ymd)

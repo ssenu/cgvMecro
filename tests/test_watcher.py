@@ -211,3 +211,39 @@ def test_check_watch_no_screen_filter_skips_showtimes_fetch(monkeypatch):
 
     assert result.status == Status.OPEN
     fetch.assert_not_called()
+
+
+def test_check_watch_proceeds_when_webhook_not_configured(monkeypatch):
+    """웹훅을 안 넣었어도 오픈 처리와 헌트 요청은 진행돼야 한다."""
+    import cgvwatch.core.watcher as w
+    from cgvwatch.notify.discord import WebhookNotConfigured
+
+    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
+
+    def no_webhook(watch, settings):
+        raise WebhookNotConfigured("DISCORD_WEBHOOK_URL 환경변수가 설정되지 않았습니다.")
+
+    requested = []
+    result = check_watch(MagicMock(), _watch(hunt_enabled=True), Settings(),
+                         notify=no_webhook, notify_error=MagicMock(),
+                         on_open=requested.append)
+
+    assert result.status == Status.OPEN
+    assert result.was_open is True
+    assert result.last_error == ""
+    assert len(requested) == 1  # 헌팅 요청까지 이어졌다
+
+
+def test_check_watch_still_retries_when_webhook_send_fails(monkeypatch):
+    """웹훅은 있는데 발송이 실패한 경우는 기존대로 재시도(오류)여야 한다."""
+    import cgvwatch.core.watcher as w
+    monkeypatch.setattr(w, "get_open_dates", lambda c, s, m: {"20260729"})
+
+    def boom(watch, settings):
+        raise RuntimeError("디스코드 장애")
+
+    result = check_watch(MagicMock(), _watch(), Settings(),
+                         notify=boom, notify_error=MagicMock())
+
+    assert result.status == Status.ERROR
+    assert result.was_open is False

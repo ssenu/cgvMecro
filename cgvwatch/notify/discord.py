@@ -12,6 +12,14 @@ from cgvwatch.core.models import Settings, Watch
 WEBHOOK_ENV = "DISCORD_WEBHOOK_URL"
 
 
+class WebhookNotConfigured(RuntimeError):
+    """웹훅 URL이 아예 설정되지 않았다.
+
+    '보내려다 실패한 것'이 아니라 '보낼 곳이 없는 것'이므로,
+    호출부는 이 예외를 알림 건너뛰기로 처리해도 된다.
+    """
+
+
 def booking_url(watch: Watch) -> str:
     """영화·극장·날짜가 미리 선택된 CGV 예매 페이지 딥링크."""
     return (
@@ -45,7 +53,7 @@ def build_created_message(watch: Watch) -> str:
 def _send(content: str, post: Callable) -> None:
     url = os.environ.get(WEBHOOK_ENV, "").strip()
     if not url:
-        raise RuntimeError(f"{WEBHOOK_ENV} 환경변수가 설정되지 않았습니다.")
+        raise WebhookNotConfigured(f"{WEBHOOK_ENV} 환경변수가 설정되지 않았습니다.")
     resp = post(url, json={"content": content}, timeout=10)
     resp.raise_for_status()
 

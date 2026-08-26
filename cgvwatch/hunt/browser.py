@@ -36,8 +36,13 @@ class BrowserManager:
             self._pw.stop()
             self._pw = None
             raise
-        if not self._context.pages:
-            self._context.new_page()
+        page = self._context.pages[0] if self._context.pages else self._context.new_page()
+        try:
+            # 빈 탭(about:blank)이 뜨면 사용자가 무엇을 해야 할지 알 수 없다.
+            # 로그인할 수 있도록 CGV 첫 화면을 띄워준다.
+            page.goto(sel.HOME_URL, wait_until="domcontentloaded", timeout=30000)
+        except Exception:
+            logger.warning("첫 화면을 여는 데 실패했습니다(브라우저는 사용 가능)", exc_info=True)
         logger.info("브라우저 시작: %s", self.profile_dir)
 
     def stop(self) -> None:

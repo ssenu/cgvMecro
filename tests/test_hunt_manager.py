@@ -138,3 +138,27 @@ def test_stop_and_join_completes(tmp_path):
     m.join(timeout=5.0)
     assert not m.is_alive()
     browser.stop.assert_called_once()
+
+
+def test_notify_failure_does_not_change_hunt_outcome(tmp_path, monkeypatch):
+    """웹훅이 없어 알림이 실패해도 헌팅 결과 기록은 정상이어야 한다."""
+    import cgvwatch.hunt.manager as hm
+    from cgvwatch.hunt.hunter import HuntResult
+
+    m = _manager(tmp_path)
+    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: True)
+    monkeypatch.setattr(hm, "get_showtimes", lambda *a, **k: [
+        {"start": "1900", "screen": "3관", "free_seats": "5",
+         "scns_no": "003", "scn_sseq": "2"}])
+    monkeypatch.setattr(m, "_open_seat_page", lambda w, s: True)
+    monkeypatch.setattr(hm, "Hunter", lambda *a, **k: MagicMock(
+        run=lambda: HuntResult("확보", seats=["H12"], detail="결제 페이지 도달")))
+    # 알림 두 종류 모두 실패시킨다
+    monkeypatch.setattr(hm, "send_seat_secured", MagicMock(side_effect=RuntimeError("웹훅 없음")))
+    monkeypatch.setattr(hm, "notify_desktop", MagicMock(side_effect=RuntimeError("알림 실패")))
+
+    m._process(_watch())
+
+    last = m.status()["last"]
+    assert last["status"] == "확보"
+    assert last["seats"] == ["H12"]

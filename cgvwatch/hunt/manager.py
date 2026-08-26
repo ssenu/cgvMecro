@@ -77,6 +77,13 @@ class HuntManager(threading.Thread):
 
     # --- 내부 ---
 
+    def _notify(self, fn, *args) -> None:
+        """알림은 부가 기능이다. 실패해도 헌팅 결과를 바꾸지 않는다."""
+        try:
+            fn(*args)
+        except Exception:
+            logger.warning("알림 발송 실패 (무시하고 계속합니다)", exc_info=True)
+
     def _record(self, watch: Watch, status: str, detail: str, seats=None) -> None:
         with self._lock:
             self._last = {
@@ -126,7 +133,7 @@ class HuntManager(threading.Thread):
             self._record(watch, "브라우저없음", "브라우저를 먼저 열어주세요.")
             return
         if not self._browser.is_logged_in():
-            send_login_required(settings)
+            self._notify(send_login_required, settings)
             self._record(watch, "로그인필요", "CGV 로그인 후 다시 시도합니다.")
             return
 
@@ -139,7 +146,7 @@ class HuntManager(threading.Thread):
             return
 
         if not self._open_seat_page(watch, showtime):
-            send_structure_warning(watch, settings, "좌석 화면까지 진입하지 못했습니다.")
+            self._notify(send_structure_warning, watch, settings, "좌석 화면까지 진입하지 못했습니다.")
             self._record(watch, "구조변경", "좌석 화면 진입 실패")
             return
 
@@ -158,10 +165,10 @@ class HuntManager(threading.Thread):
                 self._browser.page().bring_to_front()
             except Exception:
                 logger.warning("창을 앞으로 가져오지 못했습니다", exc_info=True)
-            send_seat_secured(watch, settings, result.seats, showtime)
-            notify_desktop("좌석 확보", f"{watch.mov_nm} {', '.join(result.seats)} — 결제해 주세요")
+            self._notify(send_seat_secured, watch, settings, result.seats, showtime)
+            self._notify(notify_desktop, "좌석 확보", f"{watch.mov_nm} {', '.join(result.seats)} — 결제해 주세요")
         elif result.status == "구조변경":
-            send_structure_warning(watch, settings, result.detail)
+            self._notify(send_structure_warning, watch, settings, result.detail)
         self._record(watch, result.status, result.detail, result.seats)
 
     def _cleanup_browser(self) -> None:
