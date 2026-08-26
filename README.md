@@ -36,11 +36,12 @@ docker compose up -d --build
 
 ## 개발자용 로컬 실행
 
+의존성은 [uv](https://docs.astral.sh/uv/)로 관리합니다. `uv run`이 가상환경을 자동으로
+만들고 `uv.lock`에 잠긴 버전 그대로 설치하므로, 가상환경을 직접 켤 필요가 없습니다.
+
 ```
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt -r requirements-dev.txt
-python run.py
+uv sync --extra dev
+uv run python run.py
 ```
 
 기본적으로 `http://0.0.0.0:8080` 에서 서버가 뜹니다.
@@ -48,7 +49,7 @@ python run.py
 ### 테스트
 
 ```
-python -m pytest tests/
+uv run pytest tests/
 ```
 
 ## 환경 변수

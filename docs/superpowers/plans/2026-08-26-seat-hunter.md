@@ -6,7 +6,8 @@
 
 **Architecture:** 노트북 단독 실행(`python run.py`). 기존 감시 스레드는 그대로 두고, Playwright를 소유하는 **헌트 매니저 스레드**를 추가한다. 두 스레드는 큐로만 통신한다. 좌석 판정은 DOM이 아니라 좌석 지도 API 결과로 하며, 이 계산은 순수 함수로 분리해 단위 테스트한다.
 
-**Tech Stack:** Python 3.12, FastAPI, uvicorn, requests, **playwright (sync API)**, pytest
+**Tech Stack:** Python 3.12+, FastAPI, uvicorn, requests, **playwright (sync API)**, pytest
+**패키지 관리:** [uv](https://docs.astral.sh/uv/) — `pyproject.toml` + `uv.lock`
 
 ## Global Constraints
 
@@ -18,7 +19,12 @@
 - CGV API 호출은 반드시 기존 `CGVClient`를 통한다(`Referer` 헤더가 거기 있다). 새로 `requests.get`을 직접 쓰지 않는다.
 - 상태 문자열은 기존 `Status`(`대기중`/`열림`/`오류`)를 그대로 쓰고, 헌팅 상태는 별도 문자열로 둔다.
 - 모든 DOM 셀렉터와 URL 경로는 `cgvwatch/hunt/selectors.py`에만 둔다. 다른 파일에 셀렉터 문자열을 쓰지 않는다.
-- 테스트 실행: `python -m pytest tests/ -v` (저장소 루트). 시작 시점의 기존 테스트 **55개**는 계속 통과해야 한다.
+- **의존성은 uv로 관리한다.** 패키지 추가는 `uv add <이름>`(`pyproject.toml`과 `uv.lock`이 함께 갱신된다).
+  `pip install`을 직접 쓰지 않는다 — 전역 파이썬에 설치되어 잠금 파일과 어긋난다.
+- **모든 파이썬 실행은 `uv run`을 앞에 붙인다** (`uv run pytest`, `uv run python -c "..."`).
+  그냥 `python`을 쓰면 프로젝트 가상환경이 아니라 전역 파이썬이 잡힌다.
+- `uv.lock`은 깃에 커밋한다(재현성). `.venv/`는 커밋하지 않는다.
+- 테스트 실행: `uv run pytest tests/ -v` (저장소 루트). 시작 시점의 기존 테스트 **55개**는 계속 통과해야 한다.
 - 커밋 메시지는 한국어 + `feat:`/`fix:`/`refactor:`/`docs:`/`build:` 접두.
 - Windows 환경. 경로는 `pathlib` 사용, 셸 명령은 PowerShell 기준.
 
@@ -141,7 +147,7 @@ def test_get_seat_map_empty_when_none():
 
 - [ ] **Step 3: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_seats.py -v`
+Run: `uv run pytest tests/test_seats.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'cgvwatch.cgv.seats'`
 
 - [ ] **Step 4: 구현**
@@ -202,14 +208,14 @@ def get_seat_map(
 
 - [ ] **Step 5: 테스트 통과 확인**
 
-Run: `python -m pytest tests/test_seats.py -v`
+Run: `uv run pytest tests/test_seats.py -v`
 Expected: 4 PASS
 
 - [ ] **Step 6: 실제 CGV로 스모크 확인**
 
 Run:
 ```bash
-python -c "
+uv run python -c "
 from cgvwatch.cgv.client import CGVClient
 from cgvwatch.cgv.showtimes import get_open_dates
 from cgvwatch.cgv.seats import get_seat_map
@@ -321,7 +327,7 @@ def test_pick_seats_empty_when_nothing_free():
 
 - [ ] **Step 2: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_seatpick.py -v`
+Run: `uv run pytest tests/test_seatpick.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'cgvwatch.core.seatpick'`
 
 - [ ] **Step 3: 구현**
@@ -397,7 +403,7 @@ def pick_seats(
 
 - [ ] **Step 4: 테스트 통과 확인**
 
-Run: `python -m pytest tests/test_seatpick.py -v`
+Run: `uv run pytest tests/test_seatpick.py -v`
 Expected: 9 PASS
 
 - [ ] **Step 5: Commit**
@@ -497,7 +503,7 @@ def test_pick_showtime_none_when_empty():
 
 - [ ] **Step 3: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_showtimes.py tests/test_showpick.py -v`
+Run: `uv run pytest tests/test_showtimes.py tests/test_showpick.py -v`
 Expected: FAIL — showtimes는 `scns_no` 키가 없어서, showpick은 모듈이 없어서 실패
 
 - [ ] **Step 4: showtimes 수정**
@@ -551,14 +557,14 @@ def pick_showtime(
 
 - [ ] **Step 6: 전체 테스트 실행**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS (기존 관 필터 테스트도 그대로 통과해야 한다)
 
 - [ ] **Step 7: 실제 CGV로 좌석 조회 스모크**
 
 Run:
 ```bash
-python -c "
+uv run python -c "
 from cgvwatch.cgv.client import CGVClient
 from cgvwatch.cgv.showtimes import get_open_dates, get_showtimes
 from cgvwatch.cgv.seats import get_seat_map
@@ -641,7 +647,7 @@ def test_add_watch_rejects_bad_preferred_time(api):
 
 - [ ] **Step 2: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_server.py -v`
+Run: `uv run pytest tests/test_server.py -v`
 Expected: FAIL — `hunt_enabled` 키가 응답에 없음
 
 - [ ] **Step 3: 모델 수정**
@@ -747,12 +753,12 @@ Expected: FAIL — `hunt_enabled` 키가 응답에 없음
 
 - [ ] **Step 6: 테스트 통과 확인**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS
 
 - [ ] **Step 7: 화면 확인**
 
-Run: `python -c "from fastapi.testclient import TestClient; from cgvwatch.web.server import create_app; from cgvwatch.core.store import Store; import tempfile, pathlib; tc = TestClient(create_app(store=Store(pathlib.Path(tempfile.mkdtemp())/'c.json'), start_watcher=False)); r = tc.get('/'); print(r.status_code, 'hunt-check' in r.text)"`
+Run: `uv run python -c "from fastapi.testclient import TestClient; from cgvwatch.web.server import create_app; from cgvwatch.core.store import Store; import tempfile, pathlib; tc = TestClient(create_app(store=Store(pathlib.Path(tempfile.mkdtemp())/'c.json'), start_watcher=False)); r = tc.get('/'); print(r.status_code, 'hunt-check' in r.text)"`
 Expected: `200 True`
 
 - [ ] **Step 8: Commit**
@@ -771,7 +777,7 @@ git commit -m "feat: 감시 항목에 좌석 자동 확보 옵션(인원·오프
 - Create: `cgvwatch/hunt/selectors.py`
 - Create: `cgvwatch/hunt/browser.py`
 - Create: `docs/reference/hunterH.js` (원본 복사)
-- Modify: `requirements.txt`
+- Modify: `pyproject.toml` (playwright 의존성 추가)
 - Create: `tests/test_selectors.py`
 
 **Interfaces:**
@@ -784,10 +790,11 @@ git commit -m "feat: 감시 항목에 좌석 자동 확보 옵션(인원·오프
 
 Run:
 ```bash
-pip install playwright
-python -m playwright install chromium
+uv add playwright
+uv run playwright install chromium
 ```
-Expected: 설치 완료. `requirements.txt`에 `playwright>=1.44` 한 줄 추가.
+Expected: `uv add`가 `pyproject.toml`의 dependencies에 playwright를 넣고 `uv.lock`을 갱신한다.
+그 다음 `uv run playwright install chromium`이 브라우저 바이너리를 받는다(수백 MB, 수 분 소요).
 
 - [ ] **Step 2: 원본 스크립트 보존**
 
@@ -828,7 +835,7 @@ def test_required_selectors_are_non_empty_strings():
 
 - [ ] **Step 4: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_selectors.py -v`
+Run: `uv run pytest tests/test_selectors.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'cgvwatch.hunt'`
 
 - [ ] **Step 5: 셀렉터 모듈 구현**
@@ -957,7 +964,7 @@ class BrowserManager:
 
 - [ ] **Step 7: 테스트 통과 확인**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS
 
 - [ ] **Step 8: 실제 브라우저로 셀렉터 재확인 (중요)**
@@ -966,7 +973,7 @@ Expected: 전부 PASS
 
 Run:
 ```bash
-python -c "
+uv run python -c "
 from pathlib import Path
 from cgvwatch.hunt.browser import BrowserManager
 b = BrowserManager(Path.home()/'.cgv-watcher'/'chrome-profile')
@@ -988,7 +995,7 @@ Expected: 좌석 버튼이 100개 이상, 인원 박스 1개가 나온다.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add cgvwatch/hunt/ docs/reference/hunterH.js requirements.txt tests/test_selectors.py
+git add cgvwatch/hunt/ docs/reference/hunterH.js pyproject.toml uv.lock tests/test_selectors.py
 git commit -m "feat: Playwright 브라우저 매니저와 셀렉터 중앙화 모듈 추가"
 ```
 
@@ -1146,7 +1153,7 @@ def test_hunter_refuses_when_seat_already_held(monkeypatch):
 
 - [ ] **Step 2: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_hunter.py -v`
+Run: `uv run pytest tests/test_hunter.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'cgvwatch.hunt.hunter'`
 
 - [ ] **Step 3: 구현**
@@ -1323,12 +1330,12 @@ class Hunter:
 
 - [ ] **Step 4: 테스트 통과 확인**
 
-Run: `python -m pytest tests/test_hunter.py -v`
+Run: `uv run pytest tests/test_hunter.py -v`
 Expected: 6 PASS
 
 - [ ] **Step 5: 전체 테스트 실행**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS
 
 - [ ] **Step 6: Commit**
@@ -1424,7 +1431,7 @@ def test_notify_desktop_swallows_errors():
 
 - [ ] **Step 2: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_discord.py tests/test_desktop.py -v`
+Run: `uv run pytest tests/test_discord.py tests/test_desktop.py -v`
 Expected: FAIL — `send_seat_secured` 없음, `cgvwatch.notify.desktop` 없음
 
 - [ ] **Step 3: 디스코드 알림 추가**
@@ -1526,12 +1533,12 @@ def notify_desktop(title: str, message: str, runner: Callable = subprocess.run) 
 
 - [ ] **Step 5: 테스트 통과 확인**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS
 
 - [ ] **Step 6: 실제 알림 확인**
 
-Run: `python -c "from cgvwatch.notify.desktop import notify_desktop; notify_desktop('테스트', '알림이 보이면 성공')"`
+Run: `uv run python -c "from cgvwatch.notify.desktop import notify_desktop; notify_desktop('테스트', '알림이 보이면 성공')"`
 Expected: 윈도우 우측 하단에 알림이 뜬다.
 
 - [ ] **Step 7: Commit**
@@ -1644,7 +1651,7 @@ def test_process_one_reports_missing_browser(tmp_path):
 
 - [ ] **Step 2: 테스트 실행 → 실패 확인**
 
-Run: `python -m pytest tests/test_hunt_manager.py -v`
+Run: `uv run pytest tests/test_hunt_manager.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'cgvwatch.hunt.manager'`
 
 - [ ] **Step 3: 매니저 구현**
@@ -2014,14 +2021,14 @@ def test_hunt_status_endpoint(api):
 
 - [ ] **Step 8: 테스트 통과 확인**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS
 
 - [ ] **Step 9: 서버 기동 스모크**
 
 Run:
 ```bash
-python -c "
+uv run python -c "
 from fastapi.testclient import TestClient
 from cgvwatch.web.server import create_app
 from cgvwatch.core.store import Store
@@ -2064,14 +2071,14 @@ git rm Dockerfile docker-compose.yml .dockerignore
 
 - [ ] **Step 2: 전체 테스트 실행**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS (도커 제거는 테스트에 영향이 없어야 한다)
 
 - [ ] **Step 3: README 재작성**
 
 `README.md`를 노트북 실행 기준으로 다시 쓴다. 포함할 내용:
 - 무엇을 하는 프로그램인지 (감시·알림 + 좌석 자동 확보, 결제는 사람이)
-- 준비: `pip install -r requirements.txt`, `python -m playwright install chromium`,
+- 준비: `uv sync --extra dev`, `uv run playwright install chromium`,
   `.env`에 `DISCORD_WEBHOOK_URL` 기입
 - 실행: `python run.py` → 브라우저로 `http://localhost:8080`
 - 첫 사용: 웹 UI에서 "브라우저 열기" → 뜬 크롬에서 CGV 로그인 → 감시 등록
@@ -2103,7 +2110,7 @@ Expected: 매치 없음 (도커 운영을 중단했으므로 문서에 남아 �
 
 - [ ] **Step 6: 전체 테스트 최종 실행**
 
-Run: `python -m pytest tests/ -v`
+Run: `uv run pytest tests/ -v`
 Expected: 전부 PASS
 
 - [ ] **Step 7: Commit & Push**
@@ -2120,7 +2127,7 @@ git push
 
 이 계획을 시작하기 전에 다음을 확인한다.
 
-- `python -m playwright install chromium`이 완료되어야 Task 5부터 진행할 수 있다.
+- `uv run playwright install chromium`이 완료되어야 Task 5부터 진행할 수 있다.
 - Task 5 Step 8(실제 브라우저로 셀렉터 재확인)은 **사람이 로그인하고 좌석 화면까지 이동해야 하는
   대화형 단계**다. 자동으로 넘길 수 없다.
 - 셀렉터가 2026-08-23 관찰값이므로, Task 5~6에서 실제 화면과 다를 가능성이 높다.
