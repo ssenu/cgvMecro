@@ -33,6 +33,7 @@ class WatchIn(BaseModel):
     site_nm: str
     target_ymd: str = Field(pattern=r"^\d{8}$")
     screen_filter: str = Field(default="", max_length=30)
+    mode: str = Field(default="onopen", pattern=r"^(now|onopen)$")
     hunt_enabled: bool = False
     seat_count: int = Field(default=1, ge=1, le=2)
     row_offset: int = Field(default=1, ge=-5, le=5)
@@ -125,6 +126,8 @@ def create_app(
     def add_watch(body: WatchIn):
         watch = Watch(id=uuid.uuid4().hex[:8], **body.model_dump())
         state.add_watch(watch)
+        if watch.mode == "now":
+            hunt.request_hunt(watch)
         try:
             send_created_alert(watch, state.settings)
         except WebhookNotConfigured:

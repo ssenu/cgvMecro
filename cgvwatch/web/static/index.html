@@ -141,32 +141,76 @@
     font-weight: 600;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.92rem;
-  }
-
-  table th, table td {
-    text-align: left;
-    padding: 10px 8px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  table th {
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.85rem;
-  }
-
-  table td {
-    color: var(--text);
-  }
-
-  .empty-row td {
+  .empty-watch {
     color: var(--text-muted);
     text-align: center;
     padding: 24px 8px;
+    font-size: 0.92rem;
+  }
+
+  .watch-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .watch-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .watch-subtitle {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .watch-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+
+  .watch-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge-mode {
+    background: var(--bg-elevated);
+    color: var(--gold);
+    border: 1px solid var(--line);
+  }
+
+  .watch-checked {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .watch-hunt-line {
+    color: var(--text-muted);
+    font-size: 0.86rem;
+  }
+
+  .watch-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .extra-watch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+    color: var(--text-muted);
+    font-size: 0.85rem;
   }
 
   .badge {
@@ -237,6 +281,35 @@
   .delete-btn:hover {
     border-color: var(--accent);
     color: var(--accent-hover);
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .mode-btn {
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mode-btn[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .mode-help {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin: 0 0 14px 0;
   }
 
   form#add-watch-form {
@@ -316,26 +389,19 @@
 
   <main>
     <section>
-      <h2>감시 목록</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>영화</th>
-            <th>극장</th>
-            <th>날짜</th>
-            <th>상태</th>
-            <th>마지막 확인</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="watch-tbody">
-          <tr class="empty-row"><td colspan="6">감시 항목이 없습니다.</td></tr>
-        </tbody>
-      </table>
+      <h2>감시 중</h2>
+      <div id="watch-area">
+        <div class="empty-watch">감시 중인 영화가 없습니다. 아래에서 등록하세요.</div>
+      </div>
     </section>
 
     <section>
-      <h2>감시 추가</h2>
+      <h2>감시 등록</h2>
+      <div class="mode-toggle" role="group" aria-label="헌팅 모드">
+        <button type="button" class="mode-btn" id="mode-now-btn" aria-pressed="false">이미 열린 회차 노리기</button>
+        <button type="button" class="mode-btn" id="mode-onopen-btn" aria-pressed="true">열리면 잡기</button>
+      </div>
+      <p class="mode-help" id="mode-help"></p>
       <form id="add-watch-form">
         <div class="field">
           <label for="movie-select">영화</label>
@@ -362,13 +428,6 @@
             <option value="리클라이너"></option>
             <option value="GOLD CLASS"></option>
           </datalist>
-        </div>
-        <div class="field">
-          <label for="hunt-check">좌석 자동 확보</label>
-          <label class="check-row">
-            <input id="hunt-check" type="checkbox">
-            <span>켜기</span>
-          </label>
         </div>
         <div class="field">
           <label for="seat-count-input">인원</label>
@@ -405,12 +464,11 @@
   var errorBanner = document.getElementById("error-banner");
   var errorMessage = document.getElementById("error-message");
   var errorClose = document.getElementById("error-close");
-  var watchTbody = document.getElementById("watch-tbody");
+  var watchArea = document.getElementById("watch-area");
   var movieSelect = document.getElementById("movie-select");
   var theaterSelect = document.getElementById("theater-select");
   var dateInput = document.getElementById("date-input");
   var screenInput = document.getElementById("screen-input");
-  var huntCheck = document.getElementById("hunt-check");
   var seatCountInput = document.getElementById("seat-count-input");
   var rowOffsetInput = document.getElementById("row-offset-input");
   var prefTimeInput = document.getElementById("pref-time-input");
@@ -420,6 +478,30 @@
   var intervalInput = document.getElementById("interval-input");
   var browserBtn = document.getElementById("browser-btn");
   var huntStatus = document.getElementById("hunt-status");
+  var modeNowBtn = document.getElementById("mode-now-btn");
+  var modeOnopenBtn = document.getElementById("mode-onopen-btn");
+  var modeHelp = document.getElementById("mode-help");
+
+  var MODE_LABEL = { "now": "지금 노리는 중", "onopen": "열리면 잡기" };
+  var MODE_HELP = {
+    "now": "이미 예매가 열린 회차입니다. 등록하면 바로 좌석을 노립니다.",
+    "onopen": "아직 안 열린 날짜입니다. 열리는 순간 자동으로 좌석을 노립니다."
+  };
+
+  var currentMode = "onopen";
+  var lastWatches = [];
+  var lastHunt = null;
+
+  function setMode(mode) {
+    currentMode = mode;
+    modeNowBtn.setAttribute("aria-pressed", mode === "now" ? "true" : "false");
+    modeOnopenBtn.setAttribute("aria-pressed", mode === "onopen" ? "true" : "false");
+    modeHelp.textContent = MODE_HELP[mode];
+  }
+
+  modeNowBtn.addEventListener("click", function () { setMode("now"); });
+  modeOnopenBtn.addEventListener("click", function () { setMode("onopen"); });
+  setMode("onopen");
 
   function showError(msg) {
     errorMessage.textContent = msg;
@@ -439,6 +521,7 @@
         return res.json();
       })
       .then(function (h) {
+        lastHunt = h;
         var parts = [h.browser ? "브라우저 켜짐" : "브라우저 꺼짐"];
         if (h.active) parts.push("헌팅 중");
         if (h.queued > 0) parts.push("대기 " + h.queued);
@@ -447,6 +530,7 @@
             (h.last.seats && h.last.seats.length ? " " + h.last.seats.join(",") : ""));
         }
         huntStatus.textContent = parts.join(" · ");
+        renderWatches(lastWatches);
       })
       .catch(function (err) { showError(err.message); });
   }
@@ -477,92 +561,158 @@
     return ymd.slice(0, 4) + "-" + ymd.slice(4, 6) + "-" + ymd.slice(6, 8);
   }
 
+  function huntBtnFor(w) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "delete-btn";
+    btn.textContent = "지금 헌팅";
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      fetch("/api/hunt/" + w.id, { method: "POST" })
+        .then(function (res) {
+          if (!res.ok) throw new Error("헌팅을 시작하지 못했습니다.");
+          loadHunt();
+        })
+        .catch(function (err) { showError(err.message); })
+        .finally(function () { btn.disabled = false; });
+    });
+    return btn;
+  }
+
+  function stopBtnFor(active) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "delete-btn";
+    btn.textContent = "중단";
+    btn.disabled = !active;
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      fetch("/api/hunt/stop", { method: "POST" })
+        .then(function (res) {
+          if (!res.ok) throw new Error("헌팅을 중단하지 못했습니다.");
+          loadHunt();
+        })
+        .catch(function (err) { showError(err.message); });
+    });
+    return btn;
+  }
+
+  function delBtnFor(w) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "delete-btn";
+    btn.textContent = "삭제";
+    btn.addEventListener("click", function () {
+      deleteWatch(w.id);
+    });
+    return btn;
+  }
+
+  function buildWatchCard(w) {
+    var card = document.createElement("div");
+    card.className = "watch-card";
+
+    var title = document.createElement("div");
+    title.className = "watch-title";
+    title.textContent = w.mov_nm;
+    card.appendChild(title);
+
+    var subtitleParts = [w.site_nm, formatDate(w.target_ymd)];
+    if (w.screen_filter) subtitleParts.push(w.screen_filter + " 관만");
+    var subtitle = document.createElement("div");
+    subtitle.className = "watch-subtitle";
+    subtitle.textContent = subtitleParts.join(" · ");
+    card.appendChild(subtitle);
+
+    var metaParts = [];
+    if (w.seat_count) metaParts.push("인원 " + w.seat_count + "명");
+    if (w.preferred_time) {
+      metaParts.push("선호 시각 " + w.preferred_time.slice(0, 2) + ":" + w.preferred_time.slice(2, 4));
+    }
+    if (w.row_offset) metaParts.push("열 오프셋 " + w.row_offset);
+    if (metaParts.length) {
+      var meta = document.createElement("div");
+      meta.className = "watch-meta";
+      metaParts.forEach(function (t) {
+        var span = document.createElement("span");
+        span.textContent = t;
+        meta.appendChild(span);
+      });
+      card.appendChild(meta);
+    }
+
+    var badges = document.createElement("div");
+    badges.className = "watch-badges";
+
+    var modeBadge = document.createElement("span");
+    modeBadge.className = "badge badge-mode";
+    modeBadge.textContent = MODE_LABEL[w.mode] || MODE_LABEL.onopen;
+    badges.appendChild(modeBadge);
+
+    var statusBadge = document.createElement("span");
+    statusBadge.className = "badge " + (STATUS_BADGE[w.status] || "badge-waiting");
+    statusBadge.textContent = w.status;
+    if (w.last_error) statusBadge.title = w.last_error;
+    badges.appendChild(statusBadge);
+
+    var checked = document.createElement("span");
+    checked.className = "watch-checked";
+    checked.textContent = "마지막 확인 " + (w.last_checked || "-");
+    badges.appendChild(checked);
+
+    card.appendChild(badges);
+
+    if (w.last_error) {
+      var reason = document.createElement("div");
+      reason.className = "error-reason";
+      reason.textContent = w.last_error;
+      card.appendChild(reason);
+    }
+
+    var huntLine = document.createElement("div");
+    huntLine.className = "watch-hunt-line";
+    var isActive = !!(lastHunt && lastHunt.active === w.id);
+    if (isActive) {
+      huntLine.textContent = "헌팅 중";
+    } else if (lastHunt && lastHunt.last && lastHunt.last.watch_id === w.id && lastHunt.last.status) {
+      var seatsText = lastHunt.last.seats && lastHunt.last.seats.length
+        ? " " + lastHunt.last.seats.join(", ") : "";
+      huntLine.textContent = "마지막 헌팅 결과: " + lastHunt.last.status + seatsText;
+    } else {
+      huntLine.textContent = "헌팅 기록 없음";
+    }
+    card.appendChild(huntLine);
+
+    var actions = document.createElement("div");
+    actions.className = "watch-actions";
+    actions.appendChild(huntBtnFor(w));
+    actions.appendChild(stopBtnFor(isActive));
+    actions.appendChild(delBtnFor(w));
+    card.appendChild(actions);
+
+    return card;
+  }
+
   function renderWatches(watches) {
-    watchTbody.innerHTML = "";
+    watchArea.innerHTML = "";
     if (!watches || watches.length === 0) {
-      var tr = document.createElement("tr");
-      tr.className = "empty-row";
-      var td = document.createElement("td");
-      td.colSpan = 6;
-      td.textContent = "감시 항목이 없습니다.";
-      tr.appendChild(td);
-      watchTbody.appendChild(tr);
+      var empty = document.createElement("div");
+      empty.className = "empty-watch";
+      empty.textContent = "감시 중인 영화가 없습니다. 아래에서 등록하세요.";
+      watchArea.appendChild(empty);
       return;
     }
 
-    watches.forEach(function (w) {
-      var tr = document.createElement("tr");
+    watchArea.appendChild(buildWatchCard(watches[0]));
 
-      var movTd = document.createElement("td");
-      movTd.textContent = w.mov_nm;
-      tr.appendChild(movTd);
-
-      var siteTd = document.createElement("td");
-      siteTd.textContent = w.site_nm;
-      if (w.screen_filter) {
-        var scr = document.createElement("div");
-        scr.className = "screen-filter";
-        scr.textContent = w.screen_filter + " 관만";
-        siteTd.appendChild(scr);
-      }
-      if (w.hunt_enabled) {
-        var hm = document.createElement("div");
-        hm.className = "hunt-mark";
-        hm.textContent = "자동 확보 " + w.seat_count + "명";
-        siteTd.appendChild(hm);
-      }
-      tr.appendChild(siteTd);
-
-      var dateTd = document.createElement("td");
-      dateTd.textContent = formatDate(w.target_ymd);
-      tr.appendChild(dateTd);
-
-      var statusTd = document.createElement("td");
-      var badge = document.createElement("span");
-      badge.className = "badge " + (STATUS_BADGE[w.status] || "badge-waiting");
-      badge.textContent = w.status;
-      statusTd.appendChild(badge);
-      if (w.last_error) {
-        badge.title = w.last_error;
-        var reason = document.createElement("div");
-        reason.className = "error-reason";
-        reason.textContent = w.last_error;
-        statusTd.appendChild(reason);
-      }
-      tr.appendChild(statusTd);
-
-      var checkedTd = document.createElement("td");
-      checkedTd.textContent = w.last_checked || "-";
-      tr.appendChild(checkedTd);
-
-      var actionTd = document.createElement("td");
-      if (w.hunt_enabled) {
-        var huntBtn = document.createElement("button");
-        huntBtn.className = "delete-btn";
-        huntBtn.textContent = "지금 헌팅";
-        huntBtn.addEventListener("click", function () {
-          huntBtn.disabled = true;
-          fetch("/api/hunt/" + w.id, { method: "POST" })
-            .then(function (res) {
-              if (!res.ok) throw new Error("헌팅을 시작하지 못했습니다.");
-              loadHunt();
-            })
-            .catch(function (err) { showError(err.message); })
-            .finally(function () { huntBtn.disabled = false; });
-        });
-        actionTd.appendChild(huntBtn);
-      }
-      var delBtn = document.createElement("button");
-      delBtn.type = "button";
-      delBtn.className = "delete-btn";
-      delBtn.textContent = "삭제";
-      delBtn.addEventListener("click", function () {
-        deleteWatch(w.id);
-      });
-      actionTd.appendChild(delBtn);
-      tr.appendChild(actionTd);
-
-      watchTbody.appendChild(tr);
+    watches.slice(1).forEach(function (w) {
+      var row = document.createElement("div");
+      row.className = "extra-watch-row";
+      var label = document.createElement("span");
+      label.textContent = w.mov_nm + " · " + w.site_nm;
+      row.appendChild(label);
+      row.appendChild(delBtnFor(w));
+      watchArea.appendChild(row);
     });
   }
 
@@ -573,7 +723,8 @@
         return res.json();
       })
       .then(function (data) {
-        renderWatches(data);
+        lastWatches = data || [];
+        renderWatches(lastWatches);
       })
       .catch(function (err) {
         showError(err.message || "감시 목록을 불러오지 못했습니다.");
@@ -581,7 +732,7 @@
   }
 
   function deleteWatch(id) {
-    fetch("/api/watches/" + id, { method: "DELETE" })
+    return fetch("/api/watches/" + id, { method: "DELETE" })
       .then(function (res) {
         if (!res.ok && res.status !== 204) {
           throw new Error("삭제에 실패했습니다.");
@@ -720,6 +871,12 @@
 
     var ymd = dateInput.value.replace(/-/g, "");
 
+    if (lastWatches && lastWatches.length > 0) {
+      if (!window.confirm("이미 감시 중인 영화가 있습니다. 교체할까요?")) {
+        return;
+      }
+    }
+
     var payload = {
       mov_no: movOpt.value,
       mov_nm: movOpt.dataset.movNm || movOpt.textContent,
@@ -727,24 +884,30 @@
       site_nm: siteOpt.dataset.siteNm || siteOpt.textContent,
       target_ymd: ymd,
       screen_filter: screenInput.value.trim(),
-      hunt_enabled: huntCheck.checked,
+      mode: currentMode,
+      hunt_enabled: true,
       seat_count: parseInt(seatCountInput.value, 10),
       row_offset: parseInt(rowOffsetInput.value, 10) || 0,
       preferred_time: prefTimeInput.value.replace(":", "")
     };
 
     addBtn.disabled = true;
-    fetch("/api/watches", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
+
+    Promise.all((lastWatches || []).map(function (w) { return deleteWatch(w.id); }))
+      .then(function () {
+        return fetch("/api/watches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      })
       .then(function (res) {
         if (!res.ok) throw new Error("감시 추가에 실패했습니다.");
         return res.json();
       })
       .then(function () {
         loadWatches();
+        loadHunt();
       })
       .catch(function (err) {
         showError(err.message || "감시 추가에 실패했습니다.");

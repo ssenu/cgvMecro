@@ -165,3 +165,56 @@ def test_hunt_status_endpoint(api):
     body = tc.get("/api/hunt").json()
     assert body["browser"] is False
     assert body["queued"] == 0
+
+
+def test_add_watch_mode_now_enqueues_hunt(api, monkeypatch):
+    tc, _, _ = api
+    import cgvwatch.web.server as srv
+    monkeypatch.setattr(srv, "send_created_alert", MagicMock())
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산",
+            "target_ymd": "20260729", "mode": "now"}
+
+    res = tc.post("/api/watches", json=body)
+
+    assert res.status_code == 201
+    assert res.json()["mode"] == "now"
+    # start_watcher=False라 헌트 매니저 스레드는 돌지 않지만, 큐에는 들어가야 한다.
+    hunt_body = tc.get("/api/hunt").json()
+    assert hunt_body["queued"] == 1
+
+
+def test_add_watch_mode_onopen_does_not_enqueue_hunt(api, monkeypatch):
+    tc, _, _ = api
+    import cgvwatch.web.server as srv
+    monkeypatch.setattr(srv, "send_created_alert", MagicMock())
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산",
+            "target_ymd": "20260729", "mode": "onopen"}
+
+    res = tc.post("/api/watches", json=body)
+
+    assert res.status_code == 201
+    assert res.json()["mode"] == "onopen"
+    hunt_body = tc.get("/api/hunt").json()
+    assert hunt_body["queued"] == 0
+
+
+def test_add_watch_default_mode_is_onopen_and_no_hunt(api, monkeypatch):
+    tc, _, _ = api
+    import cgvwatch.web.server as srv
+    monkeypatch.setattr(srv, "send_created_alert", MagicMock())
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산",
+            "target_ymd": "20260729"}
+
+    res = tc.post("/api/watches", json=body)
+
+    assert res.status_code == 201
+    assert res.json()["mode"] == "onopen"
+    hunt_body = tc.get("/api/hunt").json()
+    assert hunt_body["queued"] == 0
+
+
+def test_add_watch_rejects_bad_mode(api):
+    tc, _, _ = api
+    body = {"mov_no": "1", "mov_nm": "영화", "site_no": "0013", "site_nm": "용산",
+            "target_ymd": "20260729", "mode": "asap"}
+    assert tc.post("/api/watches", json=body).status_code == 422
