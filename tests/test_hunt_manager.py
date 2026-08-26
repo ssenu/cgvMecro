@@ -126,3 +126,15 @@ def test_run_stops_browser_on_shutdown(tmp_path):
         m.join(timeout=3.0)
     browser_mock.stop.assert_called_once()
     assert m._browser is None
+
+
+def test_stop_and_join_completes(tmp_path):
+    """stop() 후 join으로 스레드가 실제로 끝나야 한다(크롬 정리 보장)."""
+    m = _manager(tmp_path)
+    browser = MagicMock()
+    m._browser = browser
+    m.start()
+    m.stop()
+    m.join(timeout=5.0)
+    assert not m.is_alive()
+    browser.stop.assert_called_once()

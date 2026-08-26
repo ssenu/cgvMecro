@@ -57,8 +57,10 @@ class HuntManager(threading.Thread):
         return True
 
     def stop_hunt(self) -> None:
-        if self._hunter:
-            self._hunter.stop()
+        with self._lock:
+            hunter = self._hunter
+        if hunter:
+            hunter.stop()
 
     def stop(self) -> None:
         self._stop.set()
@@ -88,7 +90,9 @@ class HuntManager(threading.Thread):
 
     def _ensure_browser(self) -> bool:
         if self._browser is None:
-            self._browser = BrowserManager(self._profile_dir)
+            browser = BrowserManager(self._profile_dir)
+            with self._lock:
+                self._browser = browser
         if not self._browser.is_running():
             self._browser.start()
         return self._browser.is_running()
@@ -139,12 +143,15 @@ class HuntManager(threading.Thread):
             self._record(watch, "구조변경", "좌석 화면 진입 실패")
             return
 
-        self._hunter = Hunter(
+        hunter = Hunter(
             self._browser.page(), self._client, watch, showtime,
             on_event=lambda msg: logger.info("[헌팅] %s", msg),
         )
-        result = self._hunter.run()
-        self._hunter = None
+        with self._lock:
+            self._hunter = hunter
+        result = hunter.run()
+        with self._lock:
+            self._hunter = None
 
         if result.status == "확보":
             try:

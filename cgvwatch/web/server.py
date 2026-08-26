@@ -106,6 +106,9 @@ def create_app(
         if watcher:
             watcher.stop()
             hunt.stop()
+            hunt.join(timeout=10.0)
+            if hunt.is_alive():
+                logger.warning("헌트 스레드 종료 대기 시간 초과 — 브라우저 정리가 끝나지 않았을 수 있습니다.")
 
     app = FastAPI(title="CGV 예매 오픈 알리미", lifespan=lifespan)
 

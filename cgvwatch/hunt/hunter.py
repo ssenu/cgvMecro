@@ -152,7 +152,7 @@ class Hunter:
 
         try:
             self._set_count()
-        except Exception as exc:
+        except PlaywrightError as exc:
             return HuntResult("구조변경", detail=f"인원 선택 실패: {exc}")
 
         backoff = 0.0
