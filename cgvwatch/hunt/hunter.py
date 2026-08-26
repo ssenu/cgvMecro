@@ -18,7 +18,8 @@ from cgvwatch.hunt import selectors as sel
 logger = logging.getLogger(__name__)
 
 POLL_SEC = 1.0  # 좌석 폴링 하한. 더 짧게 하지 않는다.
-BACKOFF_SEC = 5.0  # 429를 받았을 때 추가로 쉬는 시간
+BACKOFF_SEC = 5.0
+SEAT_WAIT_SEC = 20.0  # 좌석 화면 진입 직후 좌석이 그려질 때까지 기다리는 시간  # 429를 받았을 때 추가로 쉬는 시간
 
 MODAL_NONE = "none"      # 모달 없음
 MODAL_CLOSED = "closed"  # 모달을 닫았다 → 다음 후보로
@@ -43,6 +44,7 @@ class Hunter:
         showtime: dict,
         on_event: Optional[Callable[[str], None]] = None,
         poll_sec: float = POLL_SEC,
+        seat_wait_sec: float = SEAT_WAIT_SEC,
     ) -> None:
         self.page = page
         self.client = client
@@ -50,6 +52,7 @@ class Hunter:
         self.showtime = showtime
         self.on_event = on_event or (lambda msg: None)
         self.poll_sec = poll_sec
+        self.seat_wait_sec = seat_wait_sec
         self._stop = threading.Event()
         self._blacklist: set[str] = set()
 
@@ -57,6 +60,20 @@ class Hunter:
         self._stop.set()
 
     # --- 페이지 조작 (셀렉터를 쓰는 유일한 지점) ---
+
+    def _wait_for_seats(self) -> bool:
+        """좌석이 그려질 때까지 기다린다. 페이지 진입 직후엔 아직 비어 있다."""
+        deadline = time.monotonic() + self.seat_wait_sec
+        while time.monotonic() < deadline:
+            if self._stop.is_set():
+                return False
+            try:
+                if self._seat_button_count() > 0:
+                    return True
+            except PlaywrightError:
+                logger.debug("좌석 버튼 조회 실패(재시도)", exc_info=True)
+            time.sleep(0.5)
+        return False
 
     def _seat_button_count(self) -> int:
         return self.page.locator(sel.SEAT_BUTTON).count()
@@ -147,7 +164,7 @@ class Hunter:
             return HuntResult("중단", detail="좌석 선점 여부를 확인할 수 없어 중단했습니다.")
         if held_state:
             return HuntResult("중단", detail="이미 선택된 좌석이 있어 건드리지 않았습니다.")
-        if self._seat_button_count() == 0:
+        if not self._wait_for_seats():
             return HuntResult("구조변경", detail=f"좌석 버튼({sel.SEAT_BUTTON})을 찾지 못했습니다.")
 
         try:

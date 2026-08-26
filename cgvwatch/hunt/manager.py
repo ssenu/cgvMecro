@@ -69,6 +69,8 @@ class HuntManager(threading.Thread):
             info["count_wrap"] = page.locator(sel.COUNT_WRAP).count()
             info["showtime_buttons"] = page.locator(sel.SHOWTIME_BUTTON).count()
             info["cta"] = page.get_by_role("button", name=sel.CTA_TEXT).count()
+            for n in (1, 2):
+                info[f"count_btn_{n}"] = page.locator(sel.COUNT_BUTTON_TMPL.format(count=n)).count()
             body = page.inner_text(sel.BODY, timeout=3000)
             info["has_logout_text"] = sel.LOGOUT_TEXT in body
             info["has_login_text"] = sel.LOGIN_TEXT in body

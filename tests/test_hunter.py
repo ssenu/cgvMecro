@@ -146,7 +146,8 @@ def test_hunter_reports_structure_change_when_no_seat_buttons(monkeypatch):
     monkeypatch.setattr(h, "get_seat_map", lambda *a, **k: _seats({"D3"}))
     page = _page(seat_buttons=0)  # 좌석 버튼이 사라짐
 
-    result = Hunter(page, MagicMock(), _watch(), _showtime(), poll_sec=0).run(max_cycles=1)
+    result = Hunter(page, MagicMock(), _watch(), _showtime(),
+                    poll_sec=0, seat_wait_sec=0.1).run(max_cycles=1)
 
     assert result.status == "구조변경"
 
