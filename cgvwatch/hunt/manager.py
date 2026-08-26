@@ -161,6 +161,17 @@ class HuntManager(threading.Thread):
             except Exception:
                 return
 
+    def _goto(self, page, url: str, attempts: int = 3) -> bool:
+        """페이지 이동. CGV가 도중에 다른 곳으로 보내면 중단되므로 몇 번 재시도한다."""
+        for i in range(attempts):
+            try:
+                page.goto(url, wait_until="domcontentloaded", timeout=30000)
+                return True
+            except Exception as exc:
+                logger.warning("페이지 이동 실패(%d/%d): %s", i + 1, attempts, exc)
+                page.wait_for_timeout(1500)
+        return False
+
     def _login_modal_shown(self, page) -> bool:
         """CGV가 '로그인이 필요한 서비스' 안내를 띄웠는지."""
         try:
@@ -180,7 +191,9 @@ class HuntManager(threading.Thread):
             site_no=watch.site_no,
             site_nm=quote(watch.site_nm),
         )
-        page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        if not self._goto(page, url):
+            logger.warning("예매 페이지로 이동하지 못했습니다: %s", url)
+            return "fail"
         page.wait_for_timeout(1500)  # 광고 팝업이 뜰 시간을 준다
         self._dismiss_ads(page)
         start = showtime.get("start", "")
@@ -220,7 +233,11 @@ class HuntManager(threading.Thread):
             self._record(watch, "회차없음", "조건에 맞는 회차를 찾지 못했습니다.")
             return
 
-        entry = self._open_seat_page(watch, showtime)
+        try:
+            entry = self._open_seat_page(watch, showtime)
+        except Exception as exc:
+            logger.warning("좌석 화면 진입 중 오류: %s", exc)
+            entry = "fail"
         if entry == "login":
             self._notify(send_login_required, settings)
             self._record(watch, "로그인필요", "CGV가 로그인을 요구했습니다.")
