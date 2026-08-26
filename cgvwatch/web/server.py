@@ -172,6 +172,12 @@ def create_app(
         hunt.request_browser()
         return {"ok": True}
 
+    @app.post("/api/hunt/browser/close", status_code=202)
+    def close_browser():
+        """브라우저를 정상 종료한다(로그인 세션 보존)."""
+        hunt.request_close_browser()
+        return {"ok": True}
+
     @app.post("/api/hunt/diag", status_code=202)
     def hunt_diag():
         """지금 브라우저가 보고 있는 화면 정보를 수집한다. 결과는 /api/hunt의 diag."""

@@ -42,6 +42,7 @@ class HuntManager(threading.Thread):
         self._browser: Optional[BrowserManager] = None
         self._want_browser = threading.Event()
         self._want_diag = threading.Event()
+        self._want_close = threading.Event()
         self._diag: dict = {}
         self._stop = threading.Event()
 
@@ -49,6 +50,10 @@ class HuntManager(threading.Thread):
 
     def request_browser(self) -> None:
         self._want_browser.set()
+
+    def request_close_browser(self) -> None:
+        """브라우저를 정상적으로 닫는다. 강제 종료하면 로그인 쿠키가 저장되지 않는다."""
+        self._want_close.set()
 
     def request_diag(self) -> None:
         """지금 브라우저가 무엇을 보고 있는지 수집을 요청한다(셀렉터 진단용)."""
@@ -156,6 +161,16 @@ class HuntManager(threading.Thread):
             except Exception:
                 return
 
+    def _login_modal_shown(self, page) -> bool:
+        """CGV가 '로그인이 필요한 서비스' 안내를 띄웠는지."""
+        try:
+            modal = page.locator(sel.MODAL)
+            if not modal.count():
+                return False
+            return sel.LOGIN_REQUIRED_TEXT in modal.first.inner_text(timeout=2000)
+        except Exception:
+            return False
+
     def _open_seat_page(self, watch: Watch, showtime: dict) -> str:
         """예매 페이지 → 회차 클릭 → 좌석 화면. "ok" | "login" | "fail"."""
         page = self._browser.page()
@@ -176,17 +191,14 @@ class HuntManager(threading.Thread):
             logger.warning("회차 클릭 실패(%s): %s", label, exc)
             return "fail"
 
-        # 로그인하지 않았으면 CGV가 안내 모달을 띄운다 (확인: 2026-08-26)
-        try:
-            modal = page.locator(sel.MODAL)
-            if modal.count() and sel.LOGIN_REQUIRED_TEXT in modal.first.inner_text(timeout=3000):
-                logger.info("CGV가 로그인을 요구했습니다: %s", watch.mov_nm)
-                return "login"
-        except Exception:
-            logger.debug("모달 확인 실패(무시)", exc_info=True)
+        # 좌석 화면 도달과 로그인 요구를 함께 지켜본다.
+        # 로그인 안내 모달은 클릭 직후가 아니라 잠시 뒤에 뜬다 (확인: 2026-08-26)
         for _ in range(60):
             if sel.SEAT_PATH in page.url:
                 return "ok"
+            if self._login_modal_shown(page):
+                logger.info("CGV가 로그인을 요구했습니다: %s", watch.mov_nm)
+                return "login"
             page.wait_for_timeout(500)
         logger.warning("좌석 화면(%s)에 도달하지 못했습니다: %s", sel.SEAT_PATH, page.url)
         return "fail"
@@ -252,6 +264,9 @@ class HuntManager(threading.Thread):
         logger.info("헌트 매니저 시작")
         try:
             while not self._stop.is_set():
+                if self._want_close.is_set():
+                    self._want_close.clear()
+                    self._cleanup_browser()
                 if self._want_diag.is_set():
                     self._want_diag.clear()
                     if self._browser and self._browser.is_running():
