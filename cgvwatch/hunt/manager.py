@@ -106,7 +106,7 @@ class HuntManager(threading.Thread):
         start = showtime.get("start", "")
         label = f"{start[:2]}:{start[2:]}" if len(start) == 4 else start
         try:
-            page.get_by_text(label, exact=False).first.click(timeout=15000)
+            page.locator(sel.SHOWTIME_BUTTON, has_text=label).first.click(timeout=15000)
         except Exception as exc:
             logger.warning("회차 클릭 실패(%s): %s", label, exc)
             return False
@@ -157,28 +157,40 @@ class HuntManager(threading.Thread):
             send_structure_warning(watch, settings, result.detail)
         self._record(watch, result.status, result.detail, result.seats)
 
+    def _cleanup_browser(self) -> None:
+        """브라우저는 이 스레드에서만 다뤄야 하므로 run() 종료 시 여기서 정리한다."""
+        if self._browser is not None:
+            try:
+                self._browser.stop()
+            except Exception:
+                logger.warning("브라우저 정리 실패", exc_info=True)
+            self._browser = None
+
     def run(self) -> None:
         logger.info("헌트 매니저 시작")
-        while not self._stop.is_set():
-            if self._want_browser.is_set():
-                self._want_browser.clear()
+        try:
+            while not self._stop.is_set():
+                if self._want_browser.is_set():
+                    self._want_browser.clear()
+                    try:
+                        self._ensure_browser()
+                    except Exception:
+                        logger.exception("브라우저 실행 실패")
                 try:
-                    self._ensure_browser()
-                except Exception:
-                    logger.exception("브라우저 실행 실패")
-            try:
-                watch = self._queue.get(timeout=1.0)
-            except queue.Empty:
-                continue
-            with self._lock:
-                self._active = watch.id
-            try:
-                self._process(watch)
-            except Exception:
-                logger.exception("헌팅 처리 실패: %s", watch.mov_nm)
-                self._record(watch, "오류", "예기치 못한 오류. 로그를 확인하세요.")
-            finally:
+                    watch = self._queue.get(timeout=1.0)
+                except queue.Empty:
+                    continue
                 with self._lock:
-                    self._active = None
-                    self._queued_ids.discard(watch.id)
-        logger.info("헌트 매니저 종료")
+                    self._active = watch.id
+                try:
+                    self._process(watch)
+                except Exception:
+                    logger.exception("헌팅 처리 실패: %s", watch.mov_nm)
+                    self._record(watch, "오류", "예기치 못한 오류. 로그를 확인하세요.")
+                finally:
+                    with self._lock:
+                        self._active = None
+                        self._queued_ids.discard(watch.id)
+        finally:
+            self._cleanup_browser()
+            logger.info("헌트 매니저 종료")

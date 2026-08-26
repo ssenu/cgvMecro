@@ -1,7 +1,17 @@
+import time
 from unittest.mock import MagicMock
 
 from cgvwatch.core.models import Settings, Watch
 from cgvwatch.hunt.manager import HuntManager
+
+
+def _wait_until(predicate, timeout=2.0, interval=0.02):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return predicate()
 
 
 def _watch(**kw):
@@ -61,3 +71,58 @@ def test_process_one_reports_missing_browser(tmp_path):
     m = _manager(tmp_path)
     m._process(_watch())
     assert m.status()["last"]["status"] == "브라우저없음"
+
+
+def test_run_processes_watch_and_cleans_up(tmp_path):
+    """run() 루프가 큐를 소비하고 active/queued_ids를 정리한다."""
+    m = _manager(tmp_path)
+    processed = []
+    m._process = lambda watch: processed.append(watch.id)
+    m.start()
+    try:
+        m.request_hunt(_watch())
+        assert _wait_until(lambda: len(processed) == 1)
+        assert _wait_until(lambda: m.status()["active"] == "" and m.status()["queued"] == 0)
+        # 같은 id를 다시 큐에 넣을 수 있어야 한다 (queued_ids가 비워졌다는 증거)
+        assert m.request_hunt(_watch()) is True
+    finally:
+        m.stop()
+        m.join(timeout=3.0)
+    assert not m.is_alive()
+
+
+def test_run_survives_process_exception(tmp_path):
+    """_process에서 예외가 나도 정리되고 스레드는 살아있어야 한다."""
+    m = _manager(tmp_path)
+    calls = []
+
+    def boom(watch):
+        calls.append(watch.id)
+        raise RuntimeError("boom")
+
+    m._process = boom
+    m.start()
+    try:
+        m.request_hunt(_watch())
+        assert _wait_until(lambda: len(calls) == 1)
+        assert _wait_until(lambda: m.status()["active"] == "" and m.status()["queued"] == 0)
+        assert m.is_alive()
+    finally:
+        m.stop()
+        m.join(timeout=3.0)
+
+
+def test_run_stops_browser_on_shutdown(tmp_path):
+    """종료 시 run()이 브라우저를 정리한다 (stop()이 아니라 run() 스레드에서)."""
+    m = _manager(tmp_path)
+    m._process = lambda watch: None
+    browser_mock = MagicMock()
+    m._browser = browser_mock
+    m.start()
+    try:
+        assert _wait_until(lambda: m.is_alive())
+    finally:
+        m.stop()
+        m.join(timeout=3.0)
+    browser_mock.stop.assert_called_once()
+    assert m._browser is None
