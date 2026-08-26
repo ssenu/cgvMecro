@@ -20,5 +20,9 @@ def pick_showtime(
         return None
     if not preferred_time:
         return min(candidates, key=lambda s: s.get("start", ""))
-    target = int(preferred_time)
+    try:
+        target = int(preferred_time)
+    except ValueError:
+        # 형식이 잘못된 값은 '선호 시각 없음'과 같게 취급한다.
+        return min(candidates, key=lambda s: s.get("start", ""))
     return min(candidates, key=lambda s: abs(int(s.get("start") or 0) - target))

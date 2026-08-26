@@ -32,3 +32,8 @@ def test_pick_showtime_none_when_filter_matches_nothing():
 
 def test_pick_showtime_none_when_empty():
     assert pick_showtime([], "", "") is None
+
+
+def test_pick_showtime_falls_back_when_preferred_time_malformed():
+    """잘못된 형식의 선호 시각은 '선호 없음'과 같게 취급해 가장 이른 회차를 고른다."""
+    assert pick_showtime(_rows(), "", "7pm")["start"] == "0900"
