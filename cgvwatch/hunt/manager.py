@@ -41,12 +41,42 @@ class HuntManager(threading.Thread):
         self._hunter: Optional[Hunter] = None
         self._browser: Optional[BrowserManager] = None
         self._want_browser = threading.Event()
+        self._want_diag = threading.Event()
+        self._diag: dict = {}
         self._stop = threading.Event()
 
     # --- 외부 API ---
 
     def request_browser(self) -> None:
         self._want_browser.set()
+
+    def request_diag(self) -> None:
+        """지금 브라우저가 무엇을 보고 있는지 수집을 요청한다(셀렉터 진단용)."""
+        self._want_diag.set()
+
+    def _collect_diag(self) -> None:
+        """매니저 스레드에서만 실행된다(Playwright 격리)."""
+        info: dict = {}
+        try:
+            page = self._browser.page()
+            info["url"] = page.url
+            info["title"] = page.title()
+            info["auth_buttons"] = [t.strip() for t in page.locator(sel.AUTH_BUTTON).all_inner_texts()][:5]
+            modal = page.locator(sel.MODAL)
+            info["modal_count"] = modal.count()
+            info["modal_text"] = modal.first.inner_text(timeout=2000)[:200] if modal.count() else ""
+            info["seat_buttons"] = page.locator(sel.SEAT_BUTTON).count()
+            info["count_wrap"] = page.locator(sel.COUNT_WRAP).count()
+            info["showtime_buttons"] = page.locator(sel.SHOWTIME_BUTTON).count()
+            info["cta"] = page.get_by_role("button", name=sel.CTA_TEXT).count()
+            body = page.inner_text(sel.BODY, timeout=3000)
+            info["has_logout_text"] = sel.LOGOUT_TEXT in body
+            info["has_login_text"] = sel.LOGIN_TEXT in body
+        except Exception as exc:
+            info["error"] = f"{type(exc).__name__}: {exc}"
+        with self._lock:
+            self._diag = info
+        logger.info("진단: %s", info)
 
     def request_hunt(self, watch: Watch) -> bool:
         with self._lock:
@@ -73,6 +103,7 @@ class HuntManager(threading.Thread):
                 "active": self._active or "",
                 "queued": len(self._queued_ids) - (1 if self._active else 0),
                 "last": dict(self._last),
+                "diag": dict(self._diag),
             }
 
     # --- 내부 ---
@@ -142,15 +173,9 @@ class HuntManager(threading.Thread):
         if not (self._browser and self._browser.is_running()):
             self._record(watch, "브라우저없음", "브라우저를 먼저 열어주세요.")
             return
-        state = self._browser.login_state()
-        if state is False:
-            self._notify(send_login_required, settings)
-            self._record(watch, "로그인필요", "CGV 로그인 후 다시 시도합니다.")
-            return
-        if state is None:
-            # 판정할 수 없으면 막지 않는다. 회차를 눌러보면 CGV가
-            # "로그인이 필요한 서비스"라고 알려주므로 그때 판정한다.
-            logger.info("로그인 상태 판정 불가 — 일단 진행합니다: %s", watch.mov_nm)
+        # 사전 로그인 검사는 하지 않는다. 첫 화면 푸터로 판정하는 방식은
+        # 렌더 시점에 따라 틀리게 나와 헌팅을 막는 일이 잦았다.
+        # 회차를 눌렀을 때 CGV가 띄우는 안내 모달이 유일하게 믿을 수 있는 신호다.
 
         showtimes = get_showtimes(
             self._client, watch.site_no, watch.mov_no, watch.target_ymd
@@ -204,6 +229,13 @@ class HuntManager(threading.Thread):
         logger.info("헌트 매니저 시작")
         try:
             while not self._stop.is_set():
+                if self._want_diag.is_set():
+                    self._want_diag.clear()
+                    if self._browser and self._browser.is_running():
+                        self._collect_diag()
+                    else:
+                        with self._lock:
+                            self._diag = {"error": "브라우저가 꺼져 있습니다."}
                 if self._want_browser.is_set():
                     self._want_browser.clear()
                     try:

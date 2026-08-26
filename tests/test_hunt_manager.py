@@ -42,18 +42,21 @@ def test_status_reports_browser_off_initially(tmp_path):
     assert _manager(tmp_path).status()["browser"] is False
 
 
-def test_process_one_requires_login(tmp_path, monkeypatch):
-    """로그인이 안 돼 있으면 헌팅을 시작하지 않고 알림만 보낸다."""
+def test_process_no_longer_blocks_on_preflight_login(tmp_path, monkeypatch):
+    """사전 로그인 검사로 헌팅을 막지 않는다. 판정은 CGV 모달이 한다."""
     import cgvwatch.hunt.manager as hm
     alert = MagicMock()
     monkeypatch.setattr(hm, "send_login_required", alert)
+    monkeypatch.setattr(hm, "get_showtimes", lambda *a, **k: [])
     m = _manager(tmp_path)
-    m._browser = MagicMock(is_running=lambda: True, is_logged_in=lambda: False, login_state=lambda: False)
+    # 로그아웃 상태로 보이더라도 회차 조회까지는 진행해야 한다
+    m._browser = MagicMock(is_running=lambda: True, login_state=lambda: False,
+                           is_logged_in=lambda: False)
 
     m._process(_watch())
 
-    alert.assert_called_once()
-    assert m.status()["last"]["status"] == "로그인필요"
+    alert.assert_not_called()
+    assert m.status()["last"]["status"] == "회차없음"
 
 
 def test_process_one_reports_no_showtime(tmp_path, monkeypatch):

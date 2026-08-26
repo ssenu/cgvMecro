@@ -172,6 +172,12 @@ def create_app(
         hunt.request_browser()
         return {"ok": True}
 
+    @app.post("/api/hunt/diag", status_code=202)
+    def hunt_diag():
+        """지금 브라우저가 보고 있는 화면 정보를 수집한다. 결과는 /api/hunt의 diag."""
+        hunt.request_diag()
+        return {"ok": True}
+
     @app.post("/api/hunt/stop", status_code=202)
     def stop_hunt():
         hunt.stop_hunt()
